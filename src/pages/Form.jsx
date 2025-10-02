@@ -123,7 +123,7 @@ const Form = () => {
 
         {/* Target Customer Type */}
         <div className="mb-4">
-          <label className="block text-gray-700 mb-2">Target Customer Type</label>
+          <label className="block text-gray-700 mb-2">Target Customer Types</label>
           <div className="space-y-2">
             {["Students / Youth", "Families", "Professionals", "Tourists"].map((type) => (
               <label key={type} className="flex items-center space-x-2">

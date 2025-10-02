@@ -2,11 +2,13 @@ import React, { useState } from "react";
 
 const Form = () => {
   const [formData, setFormData] = useState({
-    productName: "",
+    businessName: "",
     category: "",
     description: "",
     minPrice: "",
     maxPrice: "",
+    targetCustomers: [],
+    location: "",
   });
 
   const handleChange = (e) => {
@@ -16,39 +18,49 @@ const Form = () => {
     });
   };
 
+  const handleCheckboxChange = (e) => {
+    const { value, checked } = e.target;
+    setFormData((prevData) => {
+      if (checked) {
+        return { ...prevData, targetCustomers: [...prevData.targetCustomers, value] };
+      } else {
+        return { ...prevData, targetCustomers: prevData.targetCustomers.filter((item) => item !== value) };
+      }
+    });
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Form Data Submitted:", formData);
+    console.log("Business Form Submitted:", formData);
   };
 
   return (
-    // The only change is adding "h-screen" to this div
-    <div className="flex justify-center items-center h-screen bg-gray-50">
+    <div className="flex justify-center items-center min-h-screen bg-gray-50 pt-10">
       <form
         onSubmit={handleSubmit}
         className="bg-white shadow-lg rounded-xl p-8 w-full max-w-lg"
       >
         <h2 className="text-2xl font-bold mb-6 text-gray-800 text-center">
-          Product Form
+          Business Form
         </h2>
 
-        {/* Product Name */}
+        {/* Business Name */}
         <div className="mb-4">
-          <label className="block text-gray-700 mb-2">Product Name</label>
+          <label className="block text-gray-700 mb-2">Business Name</label>
           <input
             type="text"
-            name="productName"
-            value={formData.productName}
+            name="businessName"
+            value={formData.businessName}
             onChange={handleChange}
-            placeholder="Enter product name"
+            placeholder="Enter business name"
             className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-400 focus:outline-none"
             required
           />
         </div>
 
-        {/* Product Category */}
+        {/* Business Category */}
         <div className="mb-4">
-          <label className="block text-gray-700 mb-2">Product Category</label>
+          <label className="block text-gray-700 mb-2">Business Category</label>
           <select
             name="category"
             value={formData.category}
@@ -57,53 +69,89 @@ const Form = () => {
             required
           >
             <option value="">-- Select Category --</option>
-            <option value="electronics">Electronics</option>
             <option value="fashion">Fashion</option>
+            <option value="food">Food & Beverages</option>
+            <option value="electronics">Electronics</option>
+            <option value="healthcare">Healthcare</option>
             <option value="grocery">Grocery</option>
-            <option value="furniture">Furniture</option>
+            <option value="fitness">Fitness/Wellness</option>
+            <option value="other">Other</option>
           </select>
         </div>
 
-        {/* Description */}
+        {/* Business Description */}
         <div className="mb-4">
-          <label className="block text-gray-700 mb-2">Description</label>
+          <label className="block text-gray-700 mb-2">Business Description</label>
           <textarea
             name="description"
             value={formData.description}
             onChange={handleChange}
-            placeholder="Enter product description"
+            placeholder="Tell us about your business idea or what you want to sell."
             className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-400 focus:outline-none"
             rows="4"
             required
           />
         </div>
 
-        {/* Price Range */}
-        <div className="mb-4 flex space-x-4">
-          <div className="w-1/2">
-            <label className="block text-gray-700 mb-2">Min Price</label>
+        {/* Market & Pricing */}
+        <div className="mb-4">
+          <label className="block text-gray-700 mb-2">Expected Price Range (₹)</label>
+          <div className="flex space-x-4">
             <input
               type="number"
               name="minPrice"
               value={formData.minPrice}
               onChange={handleChange}
-              placeholder="Min"
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-400 focus:outline-none"
+              placeholder="Min ₹"
+              className="w-1/2 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-400 focus:outline-none"
               required
             />
-          </div>
-          <div className="w-1/2">
-            <label className="block text-gray-700 mb-2">Max Price</label>
             <input
               type="number"
               name="maxPrice"
               value={formData.maxPrice}
               onChange={handleChange}
-              placeholder="Max"
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-400 focus:outline-none"
+              placeholder="Max ₹"
+              className="w-1/2 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-400 focus:outline-none"
               required
             />
           </div>
+          <p className="text-sm text-gray-500 mt-1">
+            Example: ₹500 – ₹2000
+          </p>
+        </div>
+
+        {/* Target Customer Type */}
+        <div className="mb-4">
+          <label className="block text-gray-700 mb-2">Target Customer Type</label>
+          <div className="space-y-2">
+            {["Students / Youth", "Families", "Professionals", "Tourists"].map((type) => (
+              <label key={type} className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  value={type}
+                  onChange={handleCheckboxChange}
+                  checked={formData.targetCustomers.includes(type)}
+                  className="h-4 w-4 text-red-500 focus:ring-red-400"
+                />
+                <span>{type}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* Preferred Location */}
+        <div className="mb-4">
+          <label className="block text-gray-700 mb-2">Preferred Location</label>
+          <input
+            type="text"
+            name="location"
+            value={formData.location}
+            onChange={handleChange}
+            placeholder="Enter preferred location"
+            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-400 focus:outline-none"
+            required
+          />
         </div>
 
         {/* Submit */}

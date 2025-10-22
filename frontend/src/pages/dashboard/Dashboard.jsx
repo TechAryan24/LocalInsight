@@ -1,8 +1,16 @@
-import React from "react";
+import React, {useState, useEffect} from "react";
 // Corrected the import to use a relative path.
 import Sidebar from "../../components/Sidebar.jsx";
 
 function Dashboard() {
+  const [data, setData] = useState({});
+
+  useEffect(() => {
+    fetch('http://127.0.0.1:5000/api/data')
+    .then(response => response.json())
+    .then(data => setData(data))
+  },[]);
+
   return (
     <div className="flex min-h-screen">
       {/* Renders the new Sidebar component */}
@@ -17,6 +25,7 @@ function Dashboard() {
           <div className="bg-white p-4 rounded-lg shadow">🚶 Footfall Analysis</div>
           <div className="bg-white p-4 rounded-lg shadow">🏪 Competitor Heatmap</div>
         </div>
+        <p> {data.message} </p>
       </main>
     </div>
   );

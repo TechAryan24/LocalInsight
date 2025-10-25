@@ -1,22 +1,27 @@
 // src/pages/Home.jsx
 import React from "react";
+import landscapeImage from "../assets/landscape.png"; // <-- IMPORTED YOUR IMAGE
+import { Brain, BarChart3, MapPin, Building2, Users2, Footprints } from "lucide-react";
 
 // --- Custom Styles for the AI-inspired landing page ---
 const customStyles = `
   body {
     font-family: 'Inter', sans-serif; /* Clean, modern sans-serif */
-    background-color: #0a0a2a; /* Deep blue/purple background */
+    /* New background inspired by your image: dark purple-blue to near-black */
+    background-color: #0a0a1a; 
+    background-image: linear-gradient(110deg, #1a1a2e 0%, #0a0a1a 100%);
+    background-attachment: fixed; /* Makes the background stay in place on scroll */
     color: #e0e7ff; /* Light, futuristic text color */
   }
 
   /* Hero section with a dark gradient and subtle tech pattern */
   .hero-background-ai {
-    background: linear-gradient(135deg, #0a0a2a 0%, #1e0a4a 100%);
+    /* Removed the specific gradient, as it now inherits from the body */
     position: relative;
     overflow: hidden; /* For containing potential absolute elements */
   }
 
-  /* Overlay for subtle grid/circuitry effect */
+  /* Overlay for subtle grid/circuitry effect - updated color */
   .hero-background-ai::before {
     content: '';
     position: absolute;
@@ -24,37 +29,39 @@ const customStyles = `
     left: 0;
     right: 0;
     bottom: 0;
-    background-image: radial-gradient(#2d0d5d 1px, transparent 1px);
+    background-image: radial-gradient(#2c2a4a 1px, transparent 1px); /* Subtler purple dot grid */
     background-size: 40px 40px;
     opacity: 0.2;
     z-index: 0;
   }
 
-  /* Neon gradient text for highlights */
+  /* Neon gradient text for highlights - NEW PALETTE (Indigo to Purple) */
   .neon-text-gradient {
-    background: linear-gradient(90deg, #8b5cf6, #ec4899); /* Purple to Pink */
+    background: linear-gradient(90deg, #6366f1, #a855f7); /* Indigo-500 to Purple-500 */
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     text-fill-color: transparent;
   }
 
-  /* Neon button style */
+  /* Neon button style - NEW PALETTE */
   .btn-neon {
-    background: linear-gradient(90deg, #8b5cf6, #ec4899); /* Purple to Pink */
+    background: linear-gradient(90deg, #6366f1, #a855f7); /* Indigo to Purple */
     color: white;
     padding: 1rem 2.5rem;
     border-radius: 9999px; /* Pill shape */
     font-weight: 700;
     letter-spacing: 0.05em;
     transition: all 0.4s ease;
-    box-shadow: 0 0 15px rgba(139, 92, 246, 0.5), 0 0 30px rgba(236, 72, 153, 0.4); /* Neon glow effect */
+    /* Updated shadow to match new colors */
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.5), 0 0 30px rgba(168, 85, 247, 0.4); 
     position: relative;
     overflow: hidden;
   }
   .btn-neon:hover {
     transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 0 20px rgba(139, 92, 246, 0.7), 0 0 40px rgba(236, 72, 153, 0.6);
+    /* Updated hover shadow */
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.7), 0 0 40px rgba(168, 85, 247, 0.6);
   }
   .btn-neon::after {
     content: '';
@@ -71,45 +78,35 @@ const customStyles = `
     left: 100%;
   }
 
-  /* Glassy card effect adapted for dark theme */
+  /* Glassy card effect adapted for new dark theme */
   .glass-card-dark {
-    background: rgba(255, 255, 255, 0.08); /* Very subtle white background */
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.05); /* Very subtle border */
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+    background: rgba(30, 27, 70, 0.1); /* Subtle purple-tinted glass */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Slightly stronger border */
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); /* Slightly stronger shadow */
   }
 
-  /* Feature icon styling */
+  /* Feature icon styling - NEW PALETTE */
   .feature-icon-circle {
-    background: linear-gradient(45deg, #8b5cf6, #ec4899); /* Matching neon gradient */
-    box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+    background: linear-gradient(45deg, #6366f1, #a855f7); /* Indigo to Purple */
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
   }
 
-  /* Timeline line for process section */
+  /* Timeline line for process section - NEW PALETTE */
   .timeline-line-dark {
-    background: linear-gradient(to bottom, #8b5cf6, #ec4899);
+    background: linear-gradient(to bottom, #6366f1, #a855f7);
   }
 `;
 
 // --- Reusable Components ---
 
-const FeatureCard = ({ iconPath, title, description }) => (
+const FeatureCard = ({ Icon, title, description }) => (
   <div className="glass-card-dark p-6 rounded-xl text-center hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2">
-    <div className="feature-icon-circle p-3 rounded-full inline-flex mb-4">
-      <svg
-        className="w-8 h-8 text-white"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="2"
-          d={iconPath}
-        ></path>
-      </svg>
+    <div className="flex justify-center mb-4">
+      <div className="p-4 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-md">
+        <Icon className="w-10 h-10 text-white" />
+      </div>
     </div>
     <h3 className="text-xl font-bold text-white mb-2">{title}</h3>
     <p className="text-gray-300 text-sm leading-relaxed">{description}</p>
@@ -128,7 +125,8 @@ const ProcessStep = ({ step, title, description, reverse }) => (
         <p className="text-gray-200 leading-relaxed">{description}</p>
       </div>
     </div>
-    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-2xl font-bold text-white shadow-lg flex-shrink-0 z-10 border-4 border-[#0a0a2a]">
+    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-2xl font-bold text-white shadow-lg flex-shrink-0 z-10 border-4 border-[#0a0a1a]">
+      {/* Updated border color to match the new deep background */}
       {step}
     </div>
     <div className="md:w-5/12 hidden md:block">
@@ -143,7 +141,7 @@ const TestimonialCard = ({ quote, name, title, avatar }) => (
       <img
         src={avatar}
         alt={name}
-        className="w-20 h-20 rounded-full mb-4 object-cover border-4 border-purple-600"
+        className="w-20 h-20 rounded-full mb-4 object-cover border-4 border-indigo-500" /* Updated border color */
       />
     )}
     <p className="text-lg italic text-gray-200 mb-5 leading-relaxed">
@@ -161,76 +159,84 @@ const TestimonialCard = ({ quote, name, title, avatar }) => (
 const HeroSection = () => (
   <section
     id="home"
-    className="hero-background-ai min-h-screen flex items-center justify-center text-center px-6 py-24 relative"
+    className="hero-background-ai min-h-screen flex items-center justify-center text-center px-4 md:px-8 py-16 md:py-20 relative"
   >
-    {/* Abstract tech lines/arcs for visual interest, similar to the image */}
-    <div className="absolute top-1/4 left-10 w-48 h-1 bg-purple-500 rounded-full blur-sm opacity-50 animate-pulse hidden lg:block"></div>
-    <div className="absolute bottom-1/4 right-20 w-64 h-1 bg-pink-500 rounded-full blur-sm opacity-50 animate-pulse-slow hidden lg:block"></div>
-    <div className="absolute top-1/2 right-10 w-2 h-2 bg-purple-400 rounded-full animate-ping-slow"></div>
-    <div className="absolute bottom-1/3 left-1/3 w-2 h-2 bg-pink-400 rounded-full animate-ping"></div>
+    {/* Decorative animated lines/dots */}
+    <div className="absolute top-1/4 left-10 w-48 h-1 bg-indigo-500 rounded-full blur-sm opacity-50 animate-pulse hidden lg:block"></div>
+    <div className="absolute bottom-1/4 right-20 w-64 h-1 bg-purple-500 rounded-full blur-sm opacity-50 animate-pulse-slow hidden lg:block"></div>
+    <div className="absolute top-1/2 right-10 w-2 h-2 bg-indigo-400 rounded-full animate-ping-slow"></div>
+    <div className="absolute bottom-1/3 left-1/3 w-2 h-2 bg-purple-400 rounded-full animate-ping"></div>
 
-    <div className="max-w-6xl mx-auto z-10 grid md:grid-cols-2 gap-12 items-center text-left">
-      <div className="md:pr-8">
-        <h2 className="text-lg uppercase tracking-widest text-purple-400 mb-3 font-semibold">
+    <div className="max-w-7xl mx-auto z-10 grid md:grid-cols-2 gap-10 lg:gap-16 items-center text-left">
+      {/* --- Left Text Section --- */}
+      <div className="md:pr-6 lg:pr-10">
+        <h2 className="text-base md:text-lg uppercase tracking-widest text-indigo-400 mb-2 font-semibold">
           Local Insight AI
         </h2>
-        <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-white leading-tight mb-6 tracking-tighter">
+
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-snug md:leading-tight mb-5 tracking-tight">
           The New <br />
           <span className="neon-text-gradient">Intelligent Platform</span> for
           Local Growth
         </h1>
-        <p className="text-xl md:text-2xl text-gray-300 mb-10 leading-relaxed">
-          Unlock Area-wise Business Analysis powered
-          by cutting-edge AI for your local enterprise.
+
+        <p className="text-lg md:text-xl text-gray-300 mb-8 leading-relaxed md:leading-loose">
+          Unlock area-wise business analysis powered by cutting-edge AI — built
+          to guide your local enterprise toward smarter growth decisions.
         </p>
-        <a href="#features" className="btn-neon inline-block">
+
+        <a href="#features" className="btn-neon inline-block mt-2">
           Discover Insights
         </a>
       </div>
-      <div className="relative flex justify-center items-center md:justify-end">
-        {/* Visual element inspired by the image - abstract representation */}
-        <div className="w-96 h-96 bg-gradient-to-br from-purple-700 to-pink-700 rounded-full mix-blend-screen opacity-20 animate-blob"></div>
-        <div className="absolute w-80 h-80 bg-gradient-to-tl from-purple-500 to-blue-500 rounded-full mix-blend-screen opacity-20 animate-blob animation-delay-2000"></div>
-        <div className="absolute text-center"></div>
+
+      {/* --- Image Section --- */}
+      <div className="relative flex justify-center items-center md:justify-end mt-10 md:mt-0">
+        <img
+          src={landscapeImage}
+          alt="AI Platform Landscape"
+          className="w-full max-w-3xl lg:max-w-4xl xl:max-w-5xl scale-105 md:scale-115"
+        />
       </div>
     </div>
   </section>
 );
 
+
 const FeaturesSection = () => {
   const features = [
     {
-      path: "M9.75 17L9 20l-1 1h8l-1-1l-.75-3M3 13h18M5 17h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z",
+      Icon: Brain,
       title: "AI-Powered Insights",
       description:
         "Uncover hidden opportunities and mitigate risks with intelligent analysis of local market dynamics.",
     },
     {
-      path: "M16 8v8m-4-0V8m-4 0v8M4 16h16a2 2 0 002-2V6a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2z",
+      Icon: BarChart3,
       title: "Data Visualization & Trends",
       description:
         "See complex data brought to life through intuitive dashboards and charts, making trends easy to grasp.",
     },
     {
-      path: "M3 13V6a2 2 0 012-2h14a2 2 0 012 2v7M5 13h14M12 17a4 4 0 100-8 4 4 0 000 8z",
+      Icon: Building2,
       title: "Market Forecasting / Predictions",
       description:
         "Anticipate future market shifts and consumer behavior to position your business ahead of the curve.",
     },
     {
-      path: "M12 21.5c-4.97 0-9-4.03-9-9s4.03-9 9-9 9 4.03 9 9-4.03 9-9 9zM12 6c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zM15 12h-2V7h-2v5H9l3 3 3-3z",
+      Icon: MapPin,
       title: "City Growth & Land Use",
       description:
         "Identify prime locations by analyzing zoning changes, permit trends, and urban development projects.",
     },
     {
-      path: "M17 20h-4v-2h4v2zM5 20h4v-2H5v2zM12 4a3 3 0 100 6 3 3 0 000-6zM3 17a1 1 0 011-1h16a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1z",
+      Icon: Users2,
       title: "Local Demographics & Needs",
       description:
         "Understand the unique characteristics of your local customer base – income, age, preferences, and unmet needs.",
     },
     {
-      path: "M13 10V3L4 14h7v7l9-11h-7z",
+      Icon: Footprints,
       title: "Mobility & Footfall",
       description:
         "Optimize your operations by tracking real-time movement data, peak hours, and pedestrian traffic.",
@@ -240,11 +246,11 @@ const FeaturesSection = () => {
   return (
     <section
       id="features"
-      className="py-20 md:py-28 relative overflow-hidden bg-[#0e0e3e]"
+      className="py-20 md:py-28 relative overflow-hidden"
     >
-      {/* Background blobs for a dynamic, futuristic feel */}
-      <div className="absolute top-0 -left-4 w-72 h-72 bg-purple-600 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob-fast"></div>
-      <div className="absolute bottom-0 -right-4 w-72 h-72 bg-pink-600 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob-fast animation-delay-4000"></div>
+      {/* Animated gradient blobs for atmosphere */}
+      <div className="absolute top-0 -left-4 w-72 h-72 bg-indigo-600 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob-fast"></div>
+      <div className="absolute bottom-0 -right-4 w-72 h-72 bg-purple-600 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob-fast animation-delay-4000"></div>
 
       <div className="container mx-auto px-6 relative z-10">
         <div className="text-center mb-16">
@@ -267,8 +273,12 @@ const FeaturesSection = () => {
   );
 };
 
+
 const ProcessSection = () => (
-  <section id="process" className="py-20 md:py-28 relative bg-[#0a0a2a]">
+  <section
+    id="process"
+    className="py-20 md:py-28 relative" /* Removed bg-[#0a0a2a] */
+  >
     <div className="container mx-auto px-6 relative z-10">
       <div className="text-center mb-20">
         <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4">
@@ -328,7 +338,10 @@ const TestimonialsSection = () => {
     },
   ];
   return (
-    <section id="testimonials" className="py-20 md:py-28 bg-[#0e0e3e]">
+    <section
+      id="testimonials"
+      className="py-20 md:py-28" /* Removed bg-[#0e0e3e] */
+    >
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4">
@@ -353,24 +366,28 @@ const TestimonialsSection = () => {
 const CTASection = () => (
   <section
     id="cta"
-    className="py-20 md:py-28 bg-gradient-to-br from-purple-800 to-pink-800 text-white text-center"
+    className="py-20 md:py-28 bg-gradient-to-br from-indigo-700 to-purple-700 text-white text-center" /* NEW PALETTE */
   >
     <div className="container mx-auto px-6">
       <h2 className="text-4xl md:text-5xl font-extrabold mb-4 max-w-4xl mx-auto leading-tight">
         Ready to Stop Guessing and{" "}
         <span className="neon-text-gradient">Start Growing</span>?
       </h2>
-      <p className="text-xl text-purple-200 mb-10 max-w-3xl mx-auto leading-relaxed">
+      <p className="text-xl text-indigo-200 mb-10 max-w-3xl mx-auto leading-relaxed">
+        {" "}
+        {/* Updated text color */}
         Take the first step toward a data-driven future. Sign up for your free,
         7-day trial—no commitment, just pure local business intelligence.
       </p>
       <a
         href="#"
-        className="btn-neon inline-block !bg-white !text-purple-700 !shadow-none !px-12 !py-4"
+        className="btn-neon inline-block !bg-white !text-indigo-700 !shadow-none !px-12 !py-4" /* Updated text color */
       >
         Start My Free Analysis Now
       </a>
-      <p className="text-sm text-purple-200 mt-4">
+      <p className="text-sm text-indigo-200 mt-4">
+        {" "}
+        {/* Updated text color */}
         Full access to all features for 7 days. Limited spots available for
         immediate onboarding.
       </p>
@@ -379,7 +396,9 @@ const CTASection = () => (
 );
 
 const Footer = () => (
-  <footer className="bg-[#0a0a2a] border-t border-gray-800 py-10 text-center text-gray-400">
+  <footer
+    className="border-t border-white/10 py-10 text-center text-gray-400" /* Removed bg, updated border */
+  >
     <div className="container mx-auto px-6">
       <p className="text-2xl font-bold text-white tracking-wide block mb-4">
         LocalInsight AI

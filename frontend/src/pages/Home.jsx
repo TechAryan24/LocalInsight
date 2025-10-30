@@ -121,7 +121,7 @@ const ProcessStep = ({ step, title, description, reverse }) => (
   >
     <div className="md:w-5/12 text-center md:text-left">
       <div className="glass-card-dark p-6 rounded-lg shadow-sm">
-        <h3 className="text-2xl font-bold neon-text-gradient mb-2">{title}</h3>
+        <h3 className="text-2xl font-bold text-white mb-2">{title}</h3>
         <p className="text-gray-200 leading-relaxed">{description}</p>
       </div>
     </div>
@@ -277,7 +277,7 @@ const FeaturesSection = () => {
 const ProcessSection = () => (
   <section
     id="process"
-    className="py-20 md:py-28 relative" /* Removed bg-[#0a0a2a] */
+    className="py-20 md:py-28 relative bg-gradient-to-br from-indigo-700 to-purple-700" /* Removed bg-[#0a0a2a] */
   >
     <div className="container mx-auto px-6 relative z-10">
       <div className="text-center mb-20">
@@ -490,8 +490,6 @@ const Home = () => (
       <HeroSection />
       <FeaturesSection />
       <ProcessSection />
-      <TestimonialsSection />
-      <CTASection />
       <Footer />
     </div>
   </>

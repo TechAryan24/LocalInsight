@@ -6,6 +6,7 @@ import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import Navbar from './components/Navbar';
 import Dashboard from "./pages/dashboard/Dashboard";
+import StrategyDashboard from './components/StrategyDashboard';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
       <Route path="/form" element={<Form/>} />
       <Route path="/login" element={<Login/>} />
       <Route path="/register" element={<Register/>} />
+      <Route path="/strategy" element={<StrategyDashboard/>} />
       <Route path="/dashboard/*" element={<Dashboard />} />
     </Routes>
     </>

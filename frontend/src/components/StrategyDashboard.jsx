@@ -27,6 +27,7 @@ const StrategyDashboard = () => {
     const [formData, setFormData] = useState({ domain: '', location: '' });
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState(null);
+    const [error, setError] = useState(null);
     const reportRef = useRef();
 
     const domains = [
@@ -42,11 +43,13 @@ const StrategyDashboard = () => {
     const handleGenerate = async () => {
         if (!formData.domain || !formData.location) return;
         setLoading(true);
+        setError(null);
         try {
             const response = await axios.post('http://localhost:5000/api/generate_strategy', formData);
             setData(response.data);
         } catch (error) {
             console.error("Error generating plan:", error);
+            setError(error.response?.data?.details || error.message || "Failed to generate plan. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -222,6 +225,7 @@ const StrategyDashboard = () => {
                                 placeholder="Core Location..."
                                 className="bg-transparent outline-none text-sm font-bold text-white placeholder:text-slate-700 w-44"
                                 onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                                value={formData.location}
                             />
                         </div>
 
@@ -229,9 +233,9 @@ const StrategyDashboard = () => {
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                             onClick={handleGenerate}
-                            disabled={loading}
-                            className={`px-8 py-3.5 rounded-[18px] font-black text-xs uppercase tracking-widest transition-all ${loading
-                                ? 'bg-white/5 text-slate-500'
+                            disabled={loading || !formData.domain || !formData.location}
+                            className={`px-8 py-3.5 rounded-[18px] font-black text-xs uppercase tracking-widest transition-all ${loading || !formData.domain || !formData.location
+                                ? 'bg-white/5 text-slate-500 cursor-not-allowed'
                                 : 'bg-white text-black hover:bg-indigo-50 shadow-xl shadow-white/5'
                                 }`}
                         >
@@ -252,7 +256,18 @@ const StrategyDashboard = () => {
 
                 <main>
                     <AnimatePresence mode='wait'>
-                        {!data && !loading && (
+                        {error && !loading && (
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.99 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="bg-red-500/10 border border-red-500/20 rounded-[32px] p-8 text-center backdrop-blur-sm"
+                            >
+                                <div className="text-red-400 font-bold mb-2">Generation Error</div>
+                                <p className="text-red-300/70 text-sm max-w-md mx-auto">{error}</p>
+                            </motion.div>
+                        )}
+
+                        {!data && !loading && !error && (
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.99 }}
                                 animate={{ opacity: 1, scale: 1 }}

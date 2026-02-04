@@ -85,7 +85,7 @@ class PlanGenerator:
 # --- STEP 3: SEQUENTIAL EXECUTION ---
 if __name__ == "__main__":
     print("🚀 Running Market Analysis Engine...")
-    market_package = get_market_analysis_logic()
+    market_package = get_market_analysis_logic("food", "delhi")
 
     GEMINI_KEY = os.getenv("GEMINI_API_KEY")
     if not GEMINI_KEY:

@@ -1,5 +1,6 @@
 import requests
 import math
+import numpy as np
 from config import (
     GEOAPIFY_API_KEY,
     GEOAPIFY_PLACES_URL,
@@ -225,9 +226,11 @@ def make_json_safe(obj):
         return {k: make_json_safe(v) for k, v in obj.items()}
     elif isinstance(obj, list):
         return [make_json_safe(v) for v in obj]
-    elif isinstance(obj, float):
-        return round(obj, 4)
+    elif isinstance(obj, (float, np.floating)):
+        return float(obj)
+    elif isinstance(obj, (int, np.integer)):
+        return int(obj)
     elif obj is None:
         return None
     else:
-        return obj
+        return str(obj) if "numpy" in str(type(obj)) else obj

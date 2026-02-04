@@ -10,7 +10,7 @@ from business_logic import PlanGenerator
 from utils import make_json_safe
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "http://localhost:5173"}})
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 @app.route("/")
 def health_check():
@@ -43,7 +43,11 @@ def predict_city():
     city = data["city"]
     category = data["business_category"]
 
-    row = df[df["City"].str.lower() == city.lower()].iloc[0]
+    city_data = df[df["City"].str.lower() == city.lower()]
+    if city_data.empty:
+        return jsonify({"error": f"City '{city}' not found in database"}), 404
+    
+    row = city_data.iloc[0]
 
     
     input_df = pd.DataFrame([{

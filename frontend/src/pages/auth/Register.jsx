@@ -1,32 +1,34 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import AuthLayout from "../../layouts/AuthLayout";
 import { useAuth } from "../../context/auth";
+import { User, Mail, Lock, ArrowRight, Loader2, CheckCircle2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Register = () => {
-  const [name, setName] = useState(""); // ✅ new
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const { signUp } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (password !== confirmPassword) return setError("Passwords do not match");
 
     try {
       setError("");
       setLoading(true);
-      await signUp(email, password, name); // ✅ send name to context
-      navigate("/dashboard");
+      await signUp(email, password, name);
+      setIsSuccess(true);
+      setTimeout(() => navigate("/dashboard"), 1500);
     } catch (err) {
       setError("Failed to create an account. Please try again.");
-      console.error("Registration Error:", err);
     } finally {
       setLoading(false);
     }
@@ -34,166 +36,177 @@ const Register = () => {
 
   return (
     <AuthLayout>
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="group rounded-[22px] bg-gray-900 transition-all duration-500 hover:bg-gradient-to-tr hover:from-green-400 hover:to-blue-600 hover:shadow-[0_0_30px_1px_rgba(0,255,117,0.3)]">
-          <div className="rounded-2xl bg-neutral-900 transition-all duration-200 group-hover:scale-98">
-            <form
-              className="flex w-[400px] flex-col gap-2.5 px-8 pb-2"
-              onSubmit={handleSubmit}
-            >
-              <p className="my-8 text-center text-xl text-white">
-                Create an Account
-              </p>
-              <p className="-mt-6 mb-4 text-center text-sm text-neutral-400">
-                Get started with LocalInsights AI.
-              </p>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="glass-card-dark rounded-[32px] p-8 md:p-10 border border-white/10 shadow-2xl relative overflow-hidden"
+      >
+        {/* Subtle inner glow */}
+        <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-purple-500/10 blur-[60px] rounded-full"></div>
 
-              {error && (
-                <p className="rounded-md bg-red-500/10 p-3 text-center text-sm text-red-400">
-                  {error}
-                </p>
-              )}
-
-              {/* ✅ Full Name Field with User Icon */}
-              <div className="flex items-center gap-2 rounded-full bg-neutral-900 p-2.5 shadow-[inset_2px_5px_10px_rgb(5,5,5)]">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="h-5 w-5 text-white"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a8.25 8.25 0 0115 0"
-                  />
-                </svg>
-                <input
-                  type="text"
-                  className="w-full border-none bg-transparent text-base text-neutral-300 outline-none focus:outline-none focus:ring-0"
-                  placeholder="John Doe"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                />
-              </div>
-
-              {/* Email Field */}
-              <div className="flex items-center gap-2 rounded-full bg-neutral-900 p-2.5 shadow-[inset_2px_5px_10px_rgb(5,5,5)]">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="h-5 w-5 text-white"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M21.75 6.75l-9 5.25-9-5.25M3 6.75v10.5a2.25 2.25 0 002.25 2.25h13.5A2.25 2.25 0 0021 17.25V6.75"
-                  />
-                </svg>
-                <input
-                  type="email"
-                  className="w-full border-none bg-transparent text-base text-neutral-300 outline-none focus:outline-none focus:ring-0"
-                  placeholder="you@example.com"
-                  autoComplete="off"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-
-              {/* Password Field */}
-              <div className="flex items-center gap-2 rounded-full bg-neutral-900 p-2.5 shadow-[inset_2px_5px_10px_rgb(5,5,5)]">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="h-5 w-5 text-white"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M16.5 10.5V6.75a4.5 4.5 0 00-9 0v3.75m11.25 0h-13.5a.75.75 0 00-.75.75v7.5a.75.75 0 00.75.75h13.5a.75.75 0 00.75-.75v-7.5a.75.75 0 00-.75-.75z"
-                  />
-                </svg>
-                <input
-                  type="password"
-                  className="w-full border-none bg-transparent text-base text-neutral-300 outline-none focus:outline-none focus:ring-0"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
-
-              {/* Confirm Password */}
-              <div className="flex items-center gap-2 rounded-full bg-neutral-900 p-2.5 shadow-[inset_2px_5px_10px_rgb(5,5,5)]">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="h-5 w-5 text-white"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M16.5 10.5V6.75a4.5 4.5 0 00-9 0v3.75m11.25 0h-13.5a.75.75 0 00-.75.75v7.5a.75.75 0 00.75.75h13.5a.75.75 0 00.75-.75v-7.5a.75.75 0 00-.75-.75z"
-                  />
-                </svg>
-                <input
-                  type="password"
-                  className="w-full border-none bg-transparent text-base text-neutral-300 outline-none focus:outline-none focus:ring-0"
-                  placeholder="Confirm Password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                />
-              </div>
-
-              {/* Terms */}
-              <div className="mt-2 flex items-center text-sm">
-                <label
-                  htmlFor="terms"
-                  className="flex cursor-pointer items-center gap-1.5 text-neutral-300"
-                >
-                  <input type="checkbox" id="terms" className="cursor-pointer" required />
-                  I agree to the{" "}
-                  <span className="font-bold text-green-400">Terms & Conditions</span>
-                </label>
-              </div>
-
-              <div className="mt-10 flex justify-center">
-                <button
-                  type="submit"
-                  className="w-full cursor-pointer rounded-md border-none bg-neutral-800 py-2 text-white transition duration-300 ease-in-out hover:enabled:bg-neutral-950 disabled:cursor-not-allowed disabled:bg-neutral-900 disabled:text-neutral-600"
-                  disabled={loading}
-                >
-                  {loading ? "Creating Account..." : "Register"}
-                </button>
-              </div>
-
-              <button
-                type="button"
-                className="mb-12 mt-4 w-full cursor-pointer rounded-md border-none bg-neutral-800 py-2 text-white transition duration-300 ease-in-out hover:bg-red-600"
-                onClick={() => navigate("/login")}
+        <div className="relative z-10">
+          <AnimatePresence mode="wait">
+            {!isSuccess ? (
+              <motion.div
+                key="register-form"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0, x: -20 }}
               >
-                Already have an account? Log In
-              </button>
-            </form>
-          </div>
+                <div className="text-center mb-8">
+                  <h2 className="text-3xl font-extrabold tracking-tight mb-2">
+                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-fuchsia-500 via-purple-400 to-blue-400">
+                      Join the Future
+                    </span>
+                  </h2>
+                  <p className="text-slate-400 font-medium text-sm">
+                    Create your account to unlock local insights
+                  </p>
+                </div>
+
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  {error && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl text-sm font-medium text-center"
+                    >
+                      {error}
+                    </motion.div>
+                  )}
+
+                  <div className="space-y-4">
+                    <div className="relative group">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500 group-focus-within:text-indigo-400 transition-colors">
+                        <User size={18} />
+                      </div>
+                      <input
+                        type="text"
+                        placeholder="Full Name"
+                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder-slate-500 outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500/40 transition-all font-medium"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <div className="relative group">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500 group-focus-within:text-indigo-400 transition-colors">
+                        <Mail size={18} />
+                      </div>
+                      <input
+                        type="email"
+                        placeholder="Email address"
+                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder-slate-500 outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500/40 transition-all font-medium"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="relative group">
+                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500 group-focus-within:text-indigo-400 transition-colors">
+                          <Lock size={18} />
+                        </div>
+                        <input
+                          type="password"
+                          placeholder="Password"
+                          className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder-slate-500 outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500/40 transition-all font-medium"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          required
+                        />
+                      </div>
+
+                      <div className="relative group">
+                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500 group-focus-within:text-indigo-400 transition-colors">
+                          <Lock size={18} />
+                        </div>
+                        <input
+                          type="password"
+                          placeholder="Confirm"
+                          className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder-slate-500 outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500/40 transition-all font-medium"
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-2 text-sm">
+                    <input type="checkbox" id="terms" className="mt-1 w-4 h-4 rounded border-white/10 bg-white/5 text-indigo-500 focus:ring-indigo-500/40" required />
+                    <label htmlFor="terms" className="text-slate-400">
+                      I agree to the <span className="text-indigo-400 font-bold">Terms of Service</span> and <span className="text-indigo-400 font-bold">Privacy Policy</span>
+                    </label>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-4 rounded-2xl shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] transition-all duration-300 flex items-center justify-center gap-2 group disabled:opacity-70 disabled:cursor-not-allowed"
+                  >
+                    {loading ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <>
+                        Create Account
+                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                      </>
+                    )}
+                  </button>
+                </form>
+
+                <p className="mt-8 text-center text-slate-400 font-medium">
+                  Already have an account?{" "}
+                  <Link to="/login" className="text-indigo-400 hover:text-indigo-300 font-bold transition-colors">
+                    Log In
+                  </Link>
+                </p>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="success-message"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="text-center py-10"
+              >
+                <div className="flex justify-center mb-6">
+                  <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center text-green-400 border border-green-500/30">
+                    <CheckCircle2 size={40} />
+                  </div>
+                </div>
+                <h2 className="text-3xl font-black text-white mb-2 tracking-tight">
+                  Welcome Aboard!
+                </h2>
+                <p className="text-slate-400 font-medium">
+                  Your account has been created successfully. Redirecting you to the dashboard...
+                </p>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-      </div>
+      </motion.div>
+
+      {/* CSS Styles - Ensure consistency with Home.jsx */}
+      <style>{`
+        .glass-card-dark {
+          background: rgba(30, 27, 70, 0.2);
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
+        }
+        .neon-text-gradient {
+          background: linear-gradient(90deg, #6366f1, #a855f7);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+      `}</style>
     </AuthLayout>
   );
 };
 
 export default Register;
+

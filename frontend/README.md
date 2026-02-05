@@ -1,16 +1,51 @@
-# React + Vite
+# 📍 LocalInsight
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**LocalInsight** is an AI-powered market intelligence platform that helps entrepreneurs find the best locations for their businesses and generates data-backed strategic plans.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Key Features
+- **Location Prediction**: Identify high-opportunity districts using machine learning.
+- **Strategic Intelligence**: Generate AI-powered business plans with Google Gemini.
+- **Market Gap Analysis**: Find untapped niches in specific geographic areas.
+- **Professional PDF Export**: Export comprehensive roadmaps for stakeholders.
 
-## React Compiler
+## 🛠️ Tech Stack
+- **Frontend**: React, Vite, Framer Motion, TailwindCSS.
+- **Backend**: Flask (Python), Pandas, Google Gemini AI.
 
-The React Compiler is not enabled on this template. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 📦 Getting Started
 
-## Expanding the ESLint configuration
+### Prerequisites
+- Node.js & npm
+- Python 3.8+
+- [Google Gemini API Key](https://aistudio.google.com/)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Setup
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd LocalInsight
+   ```
+
+2. **Frontend Setup**
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
+
+3. **Backend Setup**
+   ```bash
+   cd ../backend
+   pip install -r requirements.txt
+   # Create a .env file and add:
+   # GEMINI_API_KEY=your_key_here
+   python app.py
+   ```
+
+---
+
+## 📄 Documentation
+See the full [PRD.md](../PRD.md) for detailed product requirements and project architecture.

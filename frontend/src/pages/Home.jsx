@@ -1,7 +1,8 @@
 // src/pages/Home.jsx
 import React from "react";
 import landscapeImage from "../assets/landscape.png"; // <-- IMPORTED YOUR IMAGE
-import { Brain, BarChart3, MapPin, Building2, Users2, Footprints } from "lucide-react";
+import { Brain, BarChart3, MapPin, Building2, Users2, Footprints, Activity, Sparkles, FileText } from "lucide-react";
+import { motion } from "framer-motion";
 
 // --- Custom Styles for the AI-inspired landing page ---
 const customStyles = `
@@ -102,36 +103,48 @@ const customStyles = `
 // --- Reusable Components ---
 
 const FeatureCard = ({ Icon, title, description }) => (
-  <div className="glass-card-dark p-6 rounded-xl text-center hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2">
-    <div className="flex justify-center mb-4">
-      <div className="p-4 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-md">
-        <Icon className="w-10 h-10 text-white" />
+  <div className="glass-card-dark p-8 rounded-[32px] text-center border border-white/5 hover:border-indigo-500/30 transition-all duration-500 group">
+    <div className="flex justify-center mb-6">
+      <div className="p-5 rounded-2xl bg-indigo-500/10 text-indigo-400 group-hover:scale-110 transition-transform duration-500 shadow-inner border border-indigo-500/20">
+        <Icon className="w-8 h-8" />
       </div>
     </div>
-    <h3 className="text-xl font-bold text-white mb-2">{title}</h3>
-    <p className="text-gray-300 text-sm leading-relaxed">{description}</p>
+    <h3 className="text-xl font-black text-white mb-3 tracking-tight">{title}</h3>
+    <p className="text-slate-400 text-sm leading-relaxed font-medium">{description}</p>
   </div>
 );
 
-const ProcessStep = ({ step, title, description, reverse }) => (
+const ProcessStep = ({ step, title, description, reverse, Icon }) => (
   <div
-    className={`flex flex-col md:flex-row items-center gap-8 ${
-      reverse ? "md:flex-row-reverse" : ""
-    } mb-16`}
+    className={`flex flex-col md:flex-row items-center gap-8 md:gap-16 ${reverse ? "md:flex-row-reverse" : ""
+      } mb-24 relative`}
   >
-    <div className="md:w-5/12 text-center md:text-left">
-      <div className="glass-card-dark p-6 rounded-lg shadow-sm">
-        <h3 className="text-2xl font-bold text-white mb-2">{title}</h3>
-        <p className="text-gray-200 leading-relaxed">{description}</p>
+    <motion.div
+      initial={{ opacity: 0, x: reverse ? 50 : -50 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={{ once: true }}
+      className="md:w-5/12 text-center md:text-left z-10"
+    >
+      <div className="glass-card-dark p-8 rounded-3xl border border-white/10 hover:border-indigo-500/50 transition-all duration-500 group shadow-2xl">
+        <div className="flex items-center gap-4 mb-4 justify-center md:justify-start">
+          <div className="p-3 bg-indigo-500/10 rounded-2xl text-indigo-400 group-hover:scale-110 transition-transform">
+            <Icon size={24} />
+          </div>
+          <h3 className="text-2xl font-black text-white tracking-tight">{title}</h3>
+        </div>
+        <p className="text-gray-400 leading-relaxed font-medium">{description}</p>
       </div>
+    </motion.div>
+
+    <div className="relative flex items-center justify-center">
+      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-2xl font-black text-white shadow-[0_0_30px_rgba(99,102,241,0.4)] z-20 transform rotate-12 group-hover:rotate-0 transition-transform duration-500">
+        <span className="transform -rotate-12 group-hover:rotate-0 transition-transform">{step}</span>
+      </div>
+      {/* Glow behind number */}
+      <div className="absolute inset-0 bg-indigo-500 blur-2xl opacity-20 scale-150"></div>
     </div>
-    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-2xl font-bold text-white shadow-lg flex-shrink-0 z-10 border-4 border-[#0a0a1a]">
-      {/* Updated border color to match the new deep background */}
-      {step}
-    </div>
-    <div className="md:w-5/12 hidden md:block">
-      {/* Empty div for spacing on larger screens */}
-    </div>
+
+    <div className="md:w-5/12 hidden md:block"></div>
   </div>
 );
 
@@ -156,51 +169,67 @@ const TestimonialCard = ({ quote, name, title, avatar }) => (
 
 // --- Page Sections ---
 
-const HeroSection = () => (
-  <section
-    id="home"
-    className="hero-background-ai min-h-screen flex items-center justify-center text-center px-4 md:px-8 py-16 md:py-20 relative"
-  >
-    {/* Decorative animated lines/dots */}
-    <div className="absolute top-1/4 left-10 w-48 h-1 bg-indigo-500 rounded-full blur-sm opacity-50 animate-pulse hidden lg:block"></div>
-    <div className="absolute bottom-1/4 right-20 w-64 h-1 bg-purple-500 rounded-full blur-sm opacity-50 animate-pulse-slow hidden lg:block"></div>
-    <div className="absolute top-1/2 right-10 w-2 h-2 bg-indigo-400 rounded-full animate-ping-slow"></div>
-    <div className="absolute bottom-1/3 left-1/3 w-2 h-2 bg-purple-400 rounded-full animate-ping"></div>
+const HeroSection = () => {
+  const [rotation, setRotation] = React.useState(0);
 
-    <div className="max-w-7xl mx-auto z-10 grid md:grid-cols-2 gap-10 lg:gap-16 items-center text-left">
-      {/* --- Left Text Section --- */}
-      <div className="md:pr-6 lg:pr-10">
-        <h2 className="text-base md:text-lg uppercase tracking-widest text-indigo-400 mb-2 font-semibold">
-          Local Insight AI
-        </h2>
+  return (
+    <section
+      id="home"
+      className="min-h-screen flex items-center justify-center px-4 md:px-8 py-20 md:py-32 relative overflow-hidden"
+    >
+      {/* Dynamic Background Glows */}
+      <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-600/5 blur-[120px] rounded-full pointer-events-none"></div>
+      <div className="absolute top-1/4 right-0 w-[400px] h-[400px] bg-purple-600/10 blur-[100px] rounded-full pointer-events-none"></div>
 
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-snug md:leading-tight mb-5 tracking-tight">
-          The New <br />
-          <span className="neon-text-gradient">Intelligent Platform</span> for
-          Local Growth
-        </h1>
+      {/* Decorative animated elements */}
+      <div className="absolute top-1/2 right-10 w-2 h-2 bg-indigo-400 rounded-full animate-ping-slow"></div>
+      <div className="absolute bottom-1/3 left-1/3 w-2 h-2 bg-purple-400 rounded-full animate-ping"></div>
 
-        <p className="text-lg md:text-xl text-gray-300 mb-8 leading-relaxed md:leading-loose">
-          Unlock area-wise business analysis powered by cutting-edge AI — built
-          to guide your local enterprise toward smarter growth decisions.
-        </p>
+      <div className="max-w-7xl mx-auto z-10 grid md:grid-cols-2 gap-10 lg:gap-16 items-center text-left">
+        {/* --- Left Text Section --- */}
+        <div className="md:pr-6 lg:pr-10">
+          <h2 className="text-base md:text-lg uppercase tracking-widest text-indigo-400 mb-2 font-semibold">
+            Local Insight AI
+          </h2>
 
-        <a href="#features" className="btn-neon inline-block mt-2">
-          Discover Insights
-        </a>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-snug md:leading-tight mb-5 tracking-tight">
+            The New <br />
+            <span className="neon-text-gradient">Intelligent Platform</span> for
+            Local Growth
+          </h1>
+
+          <p className="text-lg md:text-xl text-gray-300 mb-8 leading-relaxed md:leading-loose">
+            Unlock area-wise business analysis powered by cutting-edge AI — built
+            to guide your local enterprise toward smarter growth decisions.
+          </p>
+
+          <a href="#features" className="btn-neon inline-block mt-2">
+            Discover Insights
+          </a>
+        </div>
+
+        {/* --- Image Section --- */}
+        <div className="relative flex justify-center items-center md:justify-end mt-10 md:mt-0" style={{ perspective: "2000px" }}>
+          <motion.img
+            src={landscapeImage}
+            alt="AI Platform Landscape"
+            animate={{ rotateY: rotation }}
+            transition={{ type: "spring", stiffness: 40, damping: 15 }}
+            onClick={() => setRotation(rotation + 360)}
+            className="w-full max-w-3xl lg:max-w-4xl xl:max-w-5xl scale-105 md:scale-115 cursor-pointer hover:brightness-125 transition-all duration-500 active:scale-95"
+            style={{
+              transformStyle: "preserve-3d",
+              filter: "drop-shadow(0 0 40px rgba(99, 102, 241, 0.3)) drop-shadow(0 0 100px rgba(168, 85, 247, 0.2))",
+              mixBlendMode: "lighten"
+            }}
+          />
+          {/* Subtle localized glow behind buildings */}
+          <div className="absolute inset-0 bg-indigo-500/10 blur-[120px] rounded-full scale-110 pointer-events-none -z-10"></div>
+        </div>
       </div>
-
-      {/* --- Image Section --- */}
-      <div className="relative flex justify-center items-center md:justify-end mt-10 md:mt-0">
-        <img
-          src={landscapeImage}
-          alt="AI Platform Landscape"
-          className="w-full max-w-3xl lg:max-w-4xl xl:max-w-5xl scale-105 md:scale-115"
-        />
-      </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 
 const FeaturesSection = () => {
@@ -248,9 +277,9 @@ const FeaturesSection = () => {
       id="features"
       className="py-20 md:py-28 relative overflow-hidden"
     >
-      {/* Animated gradient blobs for atmosphere */}
-      <div className="absolute top-0 -left-4 w-72 h-72 bg-indigo-600 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob-fast"></div>
-      <div className="absolute bottom-0 -right-4 w-72 h-72 bg-purple-600 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob-fast animation-delay-4000"></div>
+      {/* Ambient Glows */}
+      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-indigo-600/5 blur-[120px] rounded-full pointer-events-none"></div>
+      <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-purple-600/5 blur-[120px] rounded-full pointer-events-none"></div>
 
       <div className="container mx-auto px-6 relative z-10">
         <div className="text-center mb-16">
@@ -277,35 +306,49 @@ const FeaturesSection = () => {
 const ProcessSection = () => (
   <section
     id="process"
-    className="py-20 md:py-28 relative bg-gradient-to-br from-indigo-700 to-purple-700" /* Removed bg-[#0a0a2a] */
+    className="py-32 md:py-48 relative overflow-hidden"
   >
+    {/* Smooth Transition Glow */}
+    <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>
+
+    {/* Atmospheric Background Elements */}
+    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-indigo-500/5 blur-[150px] rounded-full pointer-events-none"></div>
+
     <div className="container mx-auto px-6 relative z-10">
-      <div className="text-center mb-20">
-        <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4">
-          The LocalInsight <span className="neon-text-gradient">Journey</span>
+      <div className="text-center mb-32">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-500/10 text-indigo-400 rounded-full text-[10px] font-black uppercase tracking-[0.2em] border border-indigo-500/20 mb-6">
+          System Architecture
+        </div>
+        <h2 className="text-5xl md:text-6xl font-black text-white mb-6 tracking-tighter">
+          The LocalInsight <span className="neon-text-gradient">Engine</span>
         </h2>
-        <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-          From raw data to actionable insights, our platform makes sophisticated
-          analysis simple.
+        <p className="text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed font-medium">
+          Our methodology bridges the gap between raw regional datasets and
+          high-fidelity strategic roadmaps.
         </p>
       </div>
+
       <div className="relative max-w-5xl mx-auto">
-        {/* The vertical timeline bar with neon gradient */}
-        <div className="absolute hidden md:block w-1 timeline-line-dark left-1/2 transform -translate-x-1/2 h-full top-0"></div>
+        {/* The vertical timeline bar with glowing gradient */}
+        <div className="absolute hidden md:block w-[2px] left-1/2 transform -translate-x-1/2 h-full top-0 bg-gradient-to-b from-indigo-500/0 via-indigo-500/50 to-purple-500/0"></div>
+
         <ProcessStep
           step={1}
           title="Data Aggregation"
+          Icon={Activity}
           description="We securely ingest and normalize billions of local data points from public, social, and proprietary sources across your target region."
         />
         <ProcessStep
           step={2}
           title="AI-Powered Analysis"
+          Icon={Sparkles}
           description='Our custom AI model, "LocalMind," processes the data, identifies complex patterns, and benchmarks your performance against the local market.'
           reverse
         />
         <ProcessStep
           step={3}
           title="Actionable Reports"
+          Icon={FileText}
           description="Receive intuitive, customized reports delivered directly to your dashboard, complete with clear, prioritized recommendations to implement immediately."
         />
       </div>

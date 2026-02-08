@@ -111,5 +111,21 @@ def generate_strategy():
         return jsonify({"error": "Failed to generate business plan", "details": str(e)}), 500
 
 
+# -------- Get All Locations --------
+@app.route("/api/locations", methods=["GET"])
+def get_all_locations():
+    try:
+        # Return all unique cities or all location data
+        # For the map, we need lat/lon or city names to geocode
+        results = df.copy()
+        # Ensure we have opportunity scores if not already present
+        if 'opportunity_score' not in results.columns:
+            results['opportunity_score'] = 0.5 # Default or calculate if needed
+            
+        return jsonify(make_json_safe(results.to_dict(orient="records")))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 if __name__ == "__main__":
     app.run(debug=True)

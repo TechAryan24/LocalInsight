@@ -1,36 +1,33 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Outlet } from "react-router-dom";
 import Home from "./pages/Home";
 import Form from "./pages/Form";
-import Map from "./pages/Map";
+import MapPage from "./pages/Map.jsx";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import Navbar from "./components/Navbar";
 import Dashboard from "./pages/dashboard/Dashboard";
+import LocationDetails from "./pages/dashboard/LocationDetails";
 import StrategyDashboard from "./components/StrategyDashboard";
 import PrivateRoute from "./components/PrivateRoute";
+import DashboardLayout from "./layouts/DashboardLayout";
 
 function App() {
   return (
-    <>
-      <Navbar />
-
-      <Routes>
-        {/* Public Routes */}
+    <Routes>
+      {/* Public Routes with Global Navbar and Padding Wrapper */}
+      <Route element={
+        <>
+          <Navbar />
+          <div className="pt-20 min-h-screen">
+            <Outlet />
+          </div>
+        </>
+      }>
         <Route path="/" element={<Home />} />
-        <Route path="/map" element={<Map />} />
+        <Route path="/map" element={<MapPage />} />
         <Route path="/form" element={<Form />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-
-        {/* Protected Routes */}
-        <Route
-          path="/dashboard"
-          element={
-            <PrivateRoute>
-              <Dashboard />
-            </PrivateRoute>
-          }
-        />
 
         <Route
           path="/strategy-dashboard"
@@ -40,8 +37,28 @@ function App() {
             </PrivateRoute>
           }
         />
-      </Routes>
-    </>
+      </Route>
+
+      {/* Dashboard Route with Custom Layout */}
+      <Route element={<DashboardLayout />}>
+        <Route
+          path="/dashboard"
+          element={
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/dashboard/details"
+          element={
+            <PrivateRoute>
+              <LocationDetails />
+            </PrivateRoute>
+          }
+        />
+      </Route>
+    </Routes>
   );
 }
 

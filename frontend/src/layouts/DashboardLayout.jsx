@@ -1,26 +1,23 @@
-import React from "react";
-import { Outlet } from "react-router-dom";
-// Corrected the import paths to be more explicit.
-import Sidebar from "../components/Sidebar.jsx";
+import React from 'react';
+import { Outlet } from 'react-router-dom';
+import { useAuth } from "../context/auth.jsx";
 import Navbar from "../components/Navbar.jsx";
 
-function DashboardLayout() {
-  return (
-    <div className="flex min-h-screen bg-gray-100">
-      {/* Sidebar */}
-      <Sidebar />
+const DashboardLayout = () => {
+  const { currentUser } = useAuth();
 
-      {/* Main Content */}
-      <div className="flex flex-col flex-1">
-        <Navbar />
-        <main className="p-6 flex-1">
-          {/* Dashboard child routes will be loaded here */}
-          <Outlet />
-        </main>
-      </div>
+  return (
+    <div className="flex flex-col h-screen text-white font-sans overflow-hidden bg-[#0a0a1a]" style={{ backgroundImage: 'linear-gradient(110deg, #1a1a2e 0%, #0a0a1a 100%)', backgroundAttachment: 'fixed' }}>
+      {/* 1. Project Navigation Bar */}
+      <Navbar />
+
+      {/* Main Layout Container */}
+      <main className="flex-1 flex flex-col p-6 pt-24 gap-6 overflow-y-auto no-scrollbar">
+        {/* Welcome Message moved to top of main content if needed, or rely on Dashboard page's header */}
+        <Outlet />
+      </main>
     </div>
   );
-}
+};
 
 export default DashboardLayout;
-

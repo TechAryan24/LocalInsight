@@ -180,7 +180,7 @@ const StrategyDashboard = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#0a0a1a] text-[#e0e7ff] font-sans selection:bg-indigo-500/30 pt-28 pb-16">
+        <div className="min-h-screen bg-[#0a0a1a] text-[#e0e7ff] font-sans selection:bg-indigo-500/30 pt-28 pb-16" style={{ backgroundImage: 'linear-gradient(110deg, #1a1a2e 0%, #0a0a1a 100%)', backgroundAttachment: 'fixed' }}>
             {/* Ambient Effects */}
             <div className="fixed inset-0 pointer-events-none overflow-hidden">
                 <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-600/10 blur-[150px] rounded-full -translate-y-1/2 translate-x-1/4" />
@@ -197,12 +197,12 @@ const StrategyDashboard = () => {
                 >
                     <div className="space-y-3">
                         <div className="flex items-center gap-3 text-indigo-400 font-bold tracking-[0.3em] text-[10px] uppercase">
-                            <Zap className="w-3 h-3 fill-indigo-400" /> AI Strategy Engine
+                            <Zap className="w-3 h-3 fill-indigo-400" /> Business Intelligence Engine
                         </div>
                         <h1 className="text-5xl font-black text-white tracking-tighter">
-                            Strategic <span className="text-indigo-500">Intelligence</span>
+                            Strategic <span className="text-indigo-500">Growth Plan</span>
                         </h1>
-                        <p className="text-slate-500 font-medium text-lg">Next-gen market auditing and growth roadmap generation.</p>
+                        <p className="text-slate-500 font-medium text-lg">Next-gen market auditing and actionable growth roadmap generation.</p>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2 bg-white/[0.03] backdrop-blur-3xl p-2 rounded-[24px] border border-white/10 shadow-3xl">

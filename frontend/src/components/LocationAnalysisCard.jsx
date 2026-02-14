@@ -136,35 +136,61 @@ const HomeIcon = ({ className }) => (
   </svg>
 );
 
+const Sparkles = ({ className }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <path d="m12 3 1.912 5.813a2 2 0 0 0 1.275 1.275L21 12l-5.813 1.912a2 2 0 0 0-1.275 1.275L12 21l-1.912-5.813a2 2 0 0 0-1.275-1.275L3 12l5.813-1.912a2 2 0 0 0 1.275-1.275L12 3Z" />
+    <path d="M5 3v4" />
+    <path d="M19 17v4" />
+    <path d="M3 5h4" />
+    <path d="M17 19h4" />
+  </svg>
+);
+
 // --- Circular Progress ---
-const CircularProgress = ({ score }) => {
-  const numericScore = typeof score === "number" ? score : 0;
+const CircularProgress = ({ score, size = "normal" }) => {
+  const numericScore = typeof score === "number" ? score : parseFloat(score) || 0;
   const percentage = Math.min(Math.max(numericScore * 100, 0), 100);
-  const radius = 52;
+  const radius = size === "small" ? 35 : 52;
+  const strokeWidth = size === "small" ? 8 : 10;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (percentage / 100) * circumference;
 
-  let strokeColor = "stroke-green-400";
-  if (percentage < 33) strokeColor = "stroke-red-500";
-  else if (percentage < 66) strokeColor = "stroke-yellow-400";
+  let strokeColor = "stroke-emerald-400";
+  if (percentage < 33) strokeColor = "stroke-rose-500";
+  else if (percentage < 66) strokeColor = "stroke-amber-400";
+
+  const containerSize = size === "small" ? "w-24 h-24" : "w-32 h-32";
+  const fontSize = size === "small" ? "text-lg" : "text-3xl";
 
   return (
-    <div className="relative flex items-center justify-center w-32 h-32">
+    <div className={`relative flex items-center justify-center ${containerSize}`}>
       <svg className="w-full h-full" viewBox="0 0 120 120">
         <circle
-          className="text-gray-700"
-          strokeWidth="10"
+          className="text-white/10"
+          strokeWidth={strokeWidth}
           stroke="currentColor"
           fill="transparent"
           r={radius}
           cx="60"
           cy="60"
         />
-        <circle
-          className={`${strokeColor} transition-all duration-700 ease-in-out`}
-          strokeWidth="10"
+        <motion.circle
+          className={`${strokeColor} transition-all duration-700 ease-in-out drop-shadow-[0_0_8px_rgba(99,102,241,0.5)]`}
+          strokeWidth={strokeWidth}
           strokeDasharray={circumference}
-          strokeDashoffset={offset}
+          initial={{ strokeDashoffset: circumference }}
+          animate={{ strokeDashoffset: offset }}
           strokeLinecap="round"
           stroke="currentColor"
           fill="transparent"
@@ -174,9 +200,12 @@ const CircularProgress = ({ score }) => {
           transform="rotate(-90 60 60)"
         />
       </svg>
-      <span className="absolute text-3xl font-bold text-white">
-        {numericScore.toFixed(2)}
-      </span>
+      <div className="absolute flex flex-col items-center">
+        <span className={`font-black text-white ${fontSize} drop-shadow-md`}>
+          {numericScore.toFixed(2)}
+        </span>
+        <span className="text-[7px] font-black text-slate-500 uppercase tracking-widest -mt-1 opacity-80">Score</span>
+      </div>
     </div>
   );
 };
@@ -190,14 +219,15 @@ function LocationAnalysisCard({ data }) {
 
   return (
     <motion.div
-      className={`${
-        isUserFormResult ? "col-span-1" : "col-span-full"
-      } bg-gray-900/70 backdrop-blur-md text-gray-100 p-6 rounded-2xl shadow-xl mx-auto my-6 hover:shadow-cyan-700/40 border border-gray-700 w-full`}
+      className="bg-[#1a1a2e]/80 backdrop-blur-xl text-gray-100 p-0 rounded-[32px] shadow-2xl mx-auto my-6 border border-white/10 w-full overflow-hidden flex flex-col group relative"
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      whileHover={{ scale: 1.03, transition: { duration: 0.2 } }}
+      whileHover={{ y: -5, boxShadow: "0 25px 50px -12px rgba(99, 102, 241, 0.25)" }}
     >
+      {/* Decorative background glow */}
+      <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 blur-3xl group-hover:bg-indigo-500/20 transition-all duration-700" />
+
       {isUserFormResult ? (
         <UserFormCardContent data={data} formatNumber={formatNumber} />
       ) : (
@@ -209,225 +239,163 @@ function LocationAnalysisCard({ data }) {
 
 // --- UserForm Layout ---
 const UserFormCardContent = ({ data, formatNumber }) => (
-  <>
-    <h2 className="text-3xl font-bold text-white mb-1 capitalize">
-      {data.City || data.city}
-    </h2>
-    <p className="text-lg text-cyan-400 mb-4 capitalize">{data.District}</p>
+  <div className="flex flex-col h-full">
+    {/* Header Section */}
+    <div className="p-6 pb-4 border-b border-white/5 relative z-10">
+      <div className="flex justify-between items-start mb-2">
+        <div className="flex flex-col gap-1 pr-4">
+          <span className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em]">Target Zone</span>
+          <h2 className="text-2xl font-black text-white capitalize leading-tight break-words">
+            {data.Area || data.City || data.city}
+          </h2>
+        </div>
+        <div className="flex-shrink-0">
+          <CircularProgress score={data.opportunity_score} size="small" />
+        </div>
+      </div>
+      <p className="text-xs font-medium text-slate-500 capitalize flex items-center gap-1.5 mt-1">
+        <div className="w-1 h-1 bg-indigo-500 rounded-full" />
+        {data.Area ? `${data.City || data.city}, ${data.District}` : data.District}
+      </p>
+    </div>
 
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div className="space-y-4">
+    {/* Stats Section */}
+    <div className="p-6 space-y-3">
+      <div className="grid grid-cols-1 gap-3">
         <InfoBlock
-          icon={<FootprintsIcon className="w-6 h-6 text-cyan-400" />}
-          label="Footfalls per Month"
+          icon={<FootprintsIcon className="w-5 h-5 text-indigo-400" />}
+          label="Monthly Traffic"
           value={formatNumber(data.FootFalls_per_month)}
         />
         <InfoBlock
-          icon={<DollarSignIcon className="w-6 h-6 text-green-400" />}
-          label="Avg. Income"
+          icon={<DollarSignIcon className="w-5 h-5 text-emerald-400" />}
+          label="Area Avg. Income"
           value={`₹${formatNumber(data.avg_income)}`}
         />
       </div>
-      <div className="flex flex-col items-center justify-center">
-        <h3 className="text-sm font-semibold text-gray-400 mb-2">
-          Opportunity Score
-        </h3>
-        <CircularProgress score={data.opportunity_score} />
+
+      {/* Actionable Insights */}
+      <div className="mt-4 pt-4 border-t border-white/5 space-y-4">
+        <div className="flex items-center gap-2 mb-2">
+          <Sparkles className="w-3 h-3 text-indigo-400" />
+          <h3 className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Market Intelligence</h3>
+        </div>
+        <div className="grid grid-cols-2 gap-y-4 gap-x-2">
+          <InfoRow
+            icon={<UsersIcon className="w-4 h-4 text-indigo-400" />}
+            label="Youth Ratio"
+            value={`${((data.Youth_Ratio || 0) * 100).toFixed(0)}%`}
+          />
+          <InfoRow
+            icon={<HomeIcon className="w-4 h-4 text-indigo-400" />}
+            label="Rent index"
+            value={`₹${formatNumber(data.Rent)}`}
+          />
+          <InfoRow
+            icon={<BriefcaseIcon className="w-4 h-4 text-indigo-400" />}
+            label="Industry"
+            value={data.product_type}
+            capitalize
+          />
+          <InfoRow
+            icon={<StoreIcon className="w-4 h-4 text-indigo-400" />}
+            label="Comps"
+            value={data.similar_shop}
+          />
+        </div>
       </div>
     </div>
 
-    <div className="mt-6 border-t border-gray-700 pt-4">
-      <h3 className="text-lg font-semibold text-white mb-3">Key Insights</h3>
-      <div className="space-y-3">
-        <InfoRow
-          icon={<UsersIcon className="w-5 h-5 text-cyan-400" />}
-          label="Youth Ratio"
-          value={`${((data.Youth_Ratio || 0) * 100).toFixed(1)}%`}
-        />
-        <InfoRow
-          icon={<HomeIcon className="w-5 h-5 text-cyan-400" />}
-          label="Monthly Rent"
-          value={`₹${formatNumber(data.Rent)}`}
-        />
-        <InfoRow
-          icon={<BriefcaseIcon className="w-5 h-5 text-cyan-400" />}
-          label="Product Type"
-          value={data.product_type}
-          capitalize
-        />
-        <InfoRow
-          icon={<StoreIcon className="w-5 h-5 text-cyan-400" />}
-          label="Similar Shops Nearby"
-          value={data.similar_shop}
-        />
-      </div>
-    </div>
-  </>
+    {/* Footer Gradient Decorator */}
+    <div className="mt-auto h-1 w-full bg-gradient-to-r from-indigo-600 via-purple-500 to-indigo-600 opacity-30" />
+  </div>
 );
 
 // --- CityData Layout (With Gemini Insight) ---
 const CityDataFormCardContent = ({ data }) => {
-  const [shops, setShops] = useState(data.shops || []);
-
-  useEffect(() => {
-    // Handle both first load and async updates
-    if (data && Array.isArray(data.shops)) {
-      setShops([...data.shops]); // clone to trigger re-render
-    }
-  }, [JSON.stringify(data.shops)]); // deep watch
-
   const successCategory = data.predicted_category || "N/A";
-  let categoryColor = "bg-gray-500";
-  if (successCategory.toLowerCase() === "high") categoryColor = "bg-green-500";
-  else if (successCategory.toLowerCase() === "medium")
-    categoryColor = "bg-yellow-500";
-  else if (successCategory.toLowerCase() === "low")
-    categoryColor = "bg-red-500";
+  let categoryColor = "text-gray-500 shadow-gray-500/20";
+  let bgColor = "bg-gray-500/10";
+
+  if (successCategory.toLowerCase() === "high") {
+    categoryColor = "text-emerald-400 shadow-emerald-500/20";
+    bgColor = "bg-emerald-500/10 border-emerald-500/20";
+  }
+  else if (successCategory.toLowerCase() === "medium") {
+    categoryColor = "text-amber-400 shadow-amber-500/20";
+    bgColor = "bg-amber-500/10 border-amber-500/20";
+  }
+  else if (successCategory.toLowerCase() === "low") {
+    categoryColor = "text-rose-400 shadow-rose-500/20";
+    bgColor = "bg-rose-500/10 border-rose-500/20";
+  }
 
   return (
-    <div className="flex flex-col lg:flex-row justify-center gap-10  w-full p-5">
-      {/* 🟩 Left Card */}
-      <motion.div
-        className="flex-[1.1] bg-gradient-to-br from-gray-900/60 to-gray-800/60 border border-cyan-700/40 rounded-2xl p-8 shadow-xl max-w-2xl w-full"
-        initial={{ opacity: 0, x: -40 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <h2 className="text-3xl font-bold text-white mb-6 capitalize">
-          {data.city || data.City}
-        </h2>
-
-        {/* Business Type */}
-        <div className="flex items-center justify-between p-4 bg-gray-700/50 rounded-lg mb-4">
-          <div className="flex items-center space-x-3">
-            <BriefcaseIcon className="w-6 h-6 text-cyan-400" />
-            <span className="text-gray-300">Business Type</span>
+    <div className="flex flex-col h-full">
+      {/* Header Section */}
+      <div className="p-6 border-b border-white/5 relative z-10">
+        <div className="flex justify-between items-start">
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em]">Regional Profile</span>
+            <h2 className="text-2xl font-black text-white capitalize leading-tight">
+              {data.city || data.City}
+            </h2>
           </div>
-          <span className="text-white font-semibold capitalize">
-            {data.product_type}
-          </span>
+          <div className={`px-3 py-1.5 rounded-xl border ${bgColor} flex flex-col items-center justify-center min-w-[70px]`}>
+            <span className="text-[8px] font-black text-slate-500 uppercase tracking-[0.1em]">Potential</span>
+            <span className={`text-[12px] font-black uppercase tracking-widest ${categoryColor}`}>
+              {data.predicted_category}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="p-6 space-y-6">
+        <div className="space-y-3">
+          {/* Business Type Pill */}
+          <div className="flex items-center gap-3 p-3 bg-white/5 rounded-2xl border border-white/5 group-hover:bg-white/10 transition-colors">
+            <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-400">
+              <BriefcaseIcon className="w-4 h-4" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Industry focus</span>
+              <span className="text-sm font-black text-white capitalize">{data.product_type}</span>
+            </div>
+          </div>
         </div>
 
-        {/* Success Chances */}
-        <div className="flex items-center justify-between p-4 bg-gray-700/50 rounded-lg mb-6">
-          <div className="flex items-center space-x-3">
-            <ZapIcon className="w-6 h-6 text-cyan-400" />
-            <span className="text-gray-300">Success Chances</span>
-          </div>
-          <span
-            className={`font-semibold text-white capitalize px-3 py-1 rounded-full text-sm ${categoryColor}`}
-          >
-            {data.predicted_category}
-          </span>
-        </div>
-
-        {/* AI Business Insight */}
+        {/* AI Insight Section */}
         {data.insights && (
-          <motion.div
-            className="bg-gradient-to-br from-cyan-900/30 to-gray-800/50 border border-cyan-700/40 p-6 rounded-xl text-gray-200 shadow-inner"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <h3 className="text-lg font-semibold text-cyan-400 mb-3">
-              AI Business Insight
-            </h3>
-            <p className="text-sm leading-relaxed whitespace-pre-line">
-              {data.insights}
-            </p>
-          </motion.div>
-        )}
-      </motion.div>
-
-      {/* 🟦 Right Card */}
-      {shops && shops.length > 0 && (
-        <motion.div
-          className="flex-[1.2] bg-gradient-to-br from-gray-900/60 to-gray-800/60 border border-cyan-700/40 rounded-2xl p-8 shadow-xl w-full max-w-5xl"
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <h3 className="text-2xl font-bold text-white mb-4">
-            Success Stories & Photos
-          </h3>
-
-          <p className="text-sm text-gray-300 mb-8">
-            Here are three short success stories from <b>{data.city}</b>:
-          </p>
-
-          <div className="flex flex-col gap-6">
-            {shops.map((shop, index) => (
-              <div
-                key={index}
-                className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6 bg-gray-800/60 rounded-xl border border-gray-700/50 hover:shadow-md hover:shadow-cyan-700/20 transition p-4"
-              >
-                {/* Left Details */}
-                <div className="flex-1 text-left">
-                  <h4 className="text-lg font-semibold text-white mb-1">
-                    {shop.title}
-                  </h4>
-                  <p className="text-gray-400 text-sm mb-2">{shop.address}</p>
-                  <p className="text-yellow-400 text-sm mb-2">
-                    ⭐ {shop.rating || "N/A"} ({shop.reviews || 0} reviews)
-                  </p>
-                  <p className="text-gray-300 text-sm mb-3 leading-relaxed">
-                    {shop.description ||
-                      "This business has made a mark through innovation, service, and customer satisfaction in the region."}
-                  </p>
-                  <a
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      window.open(shop.link, "_blank", "noopener,noreferrer");
-                    }}
-                    role="link"
-                    tabIndex={0}
-                    className="inline-flex items-center gap-1 text-cyan-400 text-sm font-medium
-             hover:underline cursor-pointer relative z-20 pointer-events-auto"
-                  >
-                    View on Maps →
-                  </a>
-                </div>
-
-                {/* Right Image */}
-                <div className="w-full sm:w-48 h-36 flex-shrink-0">
-                  <Suspense
-                    fallback={
-                      <div className="w-full h-full rounded-lg bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 animate-pulse">
-                        <p className="text-gray-400 text-sm">
-                          Loading image...
-                        </p>
-                      </div>
-                    }
-                  >
-                    <LazyImage
-                      key={`${shop.title}-${shop.thumbnail}`}
-                      src={
-                        shop.thumbnail ||
-                        "https://via.placeholder.com/150?text=No+Image"
-                      }
-                      alt={shop.title}
-                      className="w-full h-full"
-                    />
-                  </Suspense>
-                </div>
-              </div>
-            ))}
+          <div className="mt-2 space-y-3">
+            <div className="flex items-center gap-2 mb-2">
+              <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+              <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">AI Strategic Insight</h3>
+            </div>
+            <div className="bg-indigo-500/5 border border-indigo-500/10 p-5 rounded-2xl relative group-hover:bg-indigo-500/10 transition-all">
+              <p className="text-[13px] leading-relaxed text-slate-300 font-medium italic">
+                "{data.insights}"
+              </p>
+            </div>
           </div>
-        </motion.div>
-      )}
+        )}
+      </div>
+
+      {/* Footer Gradient Decorator */}
+      <div className="mt-auto h-1.5 w-full bg-gradient-to-r from-indigo-600 via-purple-500 to-indigo-600 opacity-50" />
     </div>
   );
 };
 // --- Reusable Blocks ---
 const InfoRow = ({ icon, label, value, capitalize = false }) => (
-  <div className="flex items-center justify-between">
-    <div className="flex items-center space-x-3">
-      {icon}
-      <span className="text-gray-300">{label}</span>
+  <div className="flex flex-col gap-1">
+    <div className="flex items-center gap-1.5 overflow-hidden">
+      <div className="opacity-50 group-hover:opacity-100 transition-opacity flex-shrink-0">
+        {icon}
+      </div>
+      <span className="text-[8px] font-black text-slate-500 uppercase tracking-[0.1em] truncate">{label}</span>
     </div>
     <span
-      className={`font-semibold text-white ${capitalize ? "capitalize" : ""}`}
+      className={`text-xs font-black text-slate-200 ${capitalize ? "capitalize" : ""} truncate pl-5`}
     >
       {value}
     </span>
@@ -435,12 +403,18 @@ const InfoRow = ({ icon, label, value, capitalize = false }) => (
 );
 
 const InfoBlock = ({ icon, label, value }) => (
-  <div className="flex items-center justify-between bg-gray-800/60 rounded-xl p-3">
-    <div className="flex items-center space-x-3">
+  <div className="flex items-center gap-3 bg-white/5 rounded-2xl p-4 border border-white/5 group hover:bg-indigo-500/10 hover:border-indigo-500/20 transition-all duration-300">
+    <div className="flex-shrink-0 p-2 bg-indigo-500/10 rounded-xl text-indigo-400 group-hover:scale-110 transition-transform shadow-inner">
       {icon}
-      <span className="text-gray-300">{label}</span>
     </div>
-    <span className="text-xl font-semibold text-white">{value}</span>
+    <div className="flex flex-col min-w-0">
+      <span className="text-[8px] font-black text-slate-500 uppercase tracking-[0.2em] leading-none mb-1 truncate">
+        {label}
+      </span>
+      <span className="text-lg font-black text-white tracking-tight truncate">
+        {value}
+      </span>
+    </div>
   </div>
 );
 

@@ -83,7 +83,7 @@ const Navbar = () => {
         }
       `}</style>
 
-      <nav className="fixed top-0 left-0 w-full z-[9999] bg-[#070716] border-b border-white/10">
+      <nav className="fixed top-0 left-0 w-full z-[9999] bg-[#0a0a1a] border-0 shadow-none">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
 
           {/* LOGO */}
@@ -103,7 +103,7 @@ const Navbar = () => {
             {currentUser && (
               <>
                 <NavLink to="/dashboard" icon={LayoutDashboard} label="Dashboard" />
-                <NavLink to="/strategy-dashboard" icon={ClipboardList} label="Strategy Dashboard" />
+                <NavLink to="/strategy-dashboard" icon={ClipboardList} label="Strategic Roadmap" />
               </>
             )}
           </ul>
@@ -113,7 +113,7 @@ const Navbar = () => {
             {currentUser ? (
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-2 bg-white/5 hover:bg-white/10 text-white px-4 py-2 rounded-xl border border-white/10"
+                className="flex items-center gap-2 bg-white/5 hover:bg-white/10 text-white px-4 py-2 rounded-xl"
               >
                 <LogOut size={16} />
                 Logout
@@ -146,7 +146,7 @@ const Navbar = () => {
 
         {/* MOBILE MENU */}
         {isOpen && (
-          <div className="md:hidden px-6 py-6 space-y-4 bg-[#070716] border-t border-white/10">
+          <div className="md:hidden px-6 py-6 space-y-4 bg-[#070716] border-0">
             <NavLink to="/" label="Home" />
             <NavLink to="/map" label="Map" />
             <NavLink to="/form" label="Analysis" />

@@ -62,3 +62,4 @@ def generate_ai_insights(data):
 
     response = gemini_model.generate_content(prompt)
     return getattr(response, "text", "AI response unavailable.")
+

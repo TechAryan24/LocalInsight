@@ -7,9 +7,8 @@ const UserForm = () => {
   const [formData, setFormData] = useState({
     business_name: "",
     business_category: "",
-    investment_min: "",
     investment_max: "",
-    preferred_district: "",
+    target_customer: "",
   });
 
   const handleChange = (e) => {
@@ -27,6 +26,7 @@ const UserForm = () => {
 
       const data = await response.json();
       if (response.ok) {
+        console.log(data);
         navigate("/dashboard", { state: { locations: data } });
       } else {
         alert(data.message || "No suitable location found");
@@ -36,13 +36,13 @@ const UserForm = () => {
     }
   };
 
-  const districts = [
-    "Ahmednagar", "Akola", "Amravati", "Aurangabad", "Beed", "Chandrapur",
-    "Dhule", "Gondia", "Jalgaon", "Jalna", "Kolhapur", "Latur",
-    "Mumbai City", "Mumbai Suburban", "Nagpur", "Nanded", "Nandurbar",
-    "Nashik", "Osmanabad", "Palghar", "Parbhani", "Pune", "Raigad",
-    "Sangli", "Satara", "Solapur", "Thane", "Wardha", "Yavatmal"
-  ];
+  // const districts = [
+  //   "Ahmednagar", "Akola", "Amravati", "Aurangabad", "Beed", "Chandrapur",
+  //   "Dhule", "Gondia", "Jalgaon", "Jalna", "Kolhapur", "Latur",
+  //   "Mumbai City", "Mumbai Suburban", "Nagpur", "Nanded", "Nandurbar",
+  //   "Nashik", "Osmanabad", "Palghar", "Parbhani", "Pune", "Raigad",
+  //   "Sangli", "Satara", "Solapur", "Thane", "Wardha", "Yavatmal"
+  // ];
 
   return (
     <>
@@ -120,16 +120,16 @@ const UserForm = () => {
             <option value="" className="bg-[#1a1f3c] text-cyan-200">
               Select Business Category
             </option>
-            <option value="bakery" className="bg-[#1a1f3c] text-cyan-200">
+            <option value="Bakery" className="bg-[#1a1f3c] text-cyan-200">
               Bakery
             </option>
-            <option value="cafe" className="bg-[#1a1f3c] text-cyan-200">
+            <option value="Cafe" className="bg-[#1a1f3c] text-cyan-200">
               Cafe
             </option>
-            <option value="shoes" className="bg-[#1a1f3c] text-cyan-200">
+            <option value="Shoes" className="bg-[#1a1f3c] text-cyan-200">
               Shoes
             </option>
-            <option value="watch" className="bg-[#1a1f3c] text-cyan-200">
+            <option value="Watch" className="bg-[#1a1f3c] text-cyan-200">
               Watch
             </option>
           </select>
@@ -140,18 +140,7 @@ const UserForm = () => {
 
         {/* Investment Range */}
         <div className="flex gap-4 mb-5">
-          <div className="relative w-1/2 rounded-lg p-[1px] bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 shadow-lg shadow-cyan-500/20">
-            <input
-              type="number"
-              name="investment_min"
-              value={formData.investment_min}
-              onChange={handleChange}
-              required
-              className="peer w-full bg-[#1a1f3c]/80 backdrop-blur-md text-cyan-100 border-none rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-cyan-400 placeholder-gray-400"
-              placeholder="Min Investment"
-            />
-          </div>
-          <div className="relative w-1/2 rounded-lg p-[1px] bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 shadow-lg shadow-cyan-500/20">
+          <div className="relative w-full rounded-lg p-[1px] bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 shadow-lg shadow-cyan-500/20">
             <input
               type="number"
               name="investment_max"
@@ -164,8 +153,35 @@ const UserForm = () => {
           </div>
         </div>
 
+        {/* Prefered Target_Customer  */}
+          <div className="relative mb-5 rounded-lg p-[1px] bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 shadow-lg shadow-cyan-500/20">
+          <select
+            name="target_customer"
+            value={formData.target_customer}
+            onChange={handleChange}
+            required
+            className="w-full appearance-none bg-[#1a1f3c]/80 backdrop-blur-md border-none text-cyan-100 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 cursor-pointer"
+          >
+            <option value="" className="bg-[#1a1f3c] text-cyan-200">
+              Target Customer
+            </option>
+            <option value="youth" className="bg-[#1a1f3c] text-cyan-200">
+              Youth
+            </option>
+            <option value="male" className="bg-[#1a1f3c] text-cyan-200">
+              Men
+            </option>
+            <option value="female" className="bg-[#1a1f3c] text-cyan-200">
+              Women
+            </option>
+          </select>
+          <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-cyan-300">
+            ▼
+          </div>
+        </div>
+
         {/* Preferred District */}
-        <div className="relative mb-6 rounded-lg p-[1px] bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 shadow-lg shadow-cyan-500/20">
+        {/* <div className="relative mb-6 rounded-lg p-[1px] bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 shadow-lg shadow-cyan-500/20">
           <select
             name="preferred_district"
             value={formData.preferred_district}
@@ -174,7 +190,7 @@ const UserForm = () => {
             className="w-full appearance-none bg-[#1a1f3c]/80 backdrop-blur-md border-none text-cyan-100 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 cursor-pointer"
           >
             <option value="" className="bg-[#1a1f3c] text-cyan-200">
-              Select District
+              Target Customer
             </option>
             {districts.map((district) => (
               <option
@@ -189,7 +205,7 @@ const UserForm = () => {
           <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-cyan-300">
             ▼
           </div>
-        </div>
+        </div> */}
 
         {/* Glowing Button */}
         <motion.button

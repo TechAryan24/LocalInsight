@@ -173,6 +173,16 @@ def get_all_locations():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+# -------- Get Cities & Pincodes from CSV --------
+@app.route("/api/cities", methods=["GET"])
+def get_cities():
+    city_pincode_data = (
+        df.groupby("City")["Pincode"]
+        .unique()
+        .apply(lambda x: [str(pin) for pin in x])
+        .to_dict()
+    )
+    return jsonify(city_pincode_data)
 
 if __name__ == "__main__":
     app.run(debug=True)

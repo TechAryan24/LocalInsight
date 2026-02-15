@@ -1,23 +1,43 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
 const CityDataForm = () => {
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     business_category: "",
     city: "",
     pincode: "",
   });
-  const [loading, setLoading] = useState(false); // ✅ new state for loading
+
+  const [loading, setLoading] = useState(false);
+  const [citiesData, setCitiesData] = useState({}); // ✅ From CSV
+
+  // ✅ Fetch cities + pincodes from backend
+  useEffect(() => {
+    fetch("http://127.0.0.1:5000/api/cities")
+      .then((res) => res.json())
+      .then((data) => {
+        setCitiesData(data);
+      })
+      .catch((err) => console.error("Error fetching cities:", err));
+  }, []);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    // Reset pincode when city changes
+    if (name === "city") {
+      setFormData({ ...formData, city: value, pincode: "" });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true); // ✅ show loading screen
+    setLoading(true);
 
     try {
       const response = await fetch("http://127.0.0.1:5000/api/predict_city", {
@@ -29,34 +49,19 @@ const CityDataForm = () => {
       const data = await response.json();
 
       if (response.ok) {
-        console.log("Frontend Prediction:", data);
         navigate("/dashboard", { state: { locations: [data] } });
       } else {
         alert(`Prediction failed: ${data.error || "Unknown error"}`);
       }
     } catch (error) {
-      console.error("Error:", error);
-      alert("Failed to fetch prediction. Please check the backend connection.");
+      alert("Failed to fetch prediction. Please check backend.");
     } finally {
-      setLoading(false); // ✅ hide loading screen
+      setLoading(false);
     }
   };
 
-  const cities = [
-    "Ahmednagar", "Achalpur", "Akola", "Ambarnath", "Amravati", "Badlapur",
-    "Barshi", "Beed", "Bhiwandi-Nizampur", "Bhusawal", "Chandrapur",
-    "Chattrapati Sambhaji Nagar", "Dhule", "Gondia", "Hinganghat",
-    "Ichalkaranji", "Jalgaon", "Jalna", "Kalyan-Dombivli", "Kolhapur",
-    "Latur", "Malegaon", "Mira-Bhayandar", "Mumbai", "Nagpur",
-    "Nanded-Waghala", "Nandurbar", "Nashik", "Navi Mumbai", "Osmanabad",
-    "Panvel", "Parbhani", "Pimpri-Chinchwad", "Pune", "Sangli", "Satara",
-    "Solapur", "Thane", "Udgir", "Ulhasnagar", "Vasai-Virar", "Wardha",
-    "Yavatmal",
-  ];
-
   return (
     <>
-      {/* ✅ Fullscreen Loading Overlay */}
       {loading && (
         <div className="fixed inset-0 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm z-50">
           <motion.div
@@ -77,122 +82,75 @@ const CityDataForm = () => {
         transition={{ duration: 1 }}
         className="w-full bg-transparent rounded-xl max-w-lg mx-auto mt-10"
       >
-        {/* Title */}
         <h2 className="text-3xl font-bold text-center mb-6 bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
           Evaluate City for Business
         </h2>
 
-        {/* Business Category Dropdown */}
+        {/* Business Category */}
         <div className="relative mb-5 rounded-lg p-[1px] bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 shadow-lg shadow-cyan-500/20">
           <select
             name="business_category"
             value={formData.business_category}
             onChange={handleChange}
             required
-            className="w-full appearance-none bg-[#0f1535]/90 backdrop-blur-md border-none 
-                       text-cyan-100 p-3 rounded-lg focus:outline-none focus:ring-2 
-                       focus:ring-cyan-400 cursor-pointer transition-all duration-200"
+            className="w-full appearance-none bg-[#0f1535]/90 text-cyan-100 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400"
           >
-            <option value="" className="bg-[#0f1535] text-cyan-300">
-              Select Business Category
-            </option>
-            <option value="bakery" className="bg-[#11193f] text-cyan-200">
-              Bakery
-            </option>
-            <option value="cafe" className="bg-[#11193f] text-cyan-200">
-              Cafe
-            </option>
-            <option value="shoes" className="bg-[#11193f] text-cyan-200">
-              Shoes
-            </option>
-            <option value="watch" className="bg-[#11193f] text-cyan-200">
-              Watch
-            </option>
+            <option value="">Select Business Category</option>
+            <option value="bakery">Bakery</option>
+            <option value="cafe">Cafe</option>
+            <option value="shoes">Shoes</option>
+            <option value="watch">Watch</option>
           </select>
-
-          {/* Custom dropdown arrow */}
-          <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-cyan-300">
-            ▼
-          </div>
         </div>
 
         {/* City Dropdown */}
-        <div className="relative mb-8 rounded-lg p-[1px] bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 shadow-lg shadow-cyan-500/20">
+        <div className="relative mb-5 rounded-lg p-[1px] bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 shadow-lg shadow-cyan-500/20">
           <select
             name="city"
             value={formData.city}
             onChange={handleChange}
             required
-            className="w-full appearance-none bg-[#0f1535]/90 backdrop-blur-md border-none 
-                       text-cyan-100 p-3 rounded-lg focus:outline-none focus:ring-2 
-                       focus:ring-cyan-400 cursor-pointer transition-all duration-200"
+            className="w-full appearance-none bg-[#0f1535]/90 text-cyan-100 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400"
           >
-            <option value="" className="bg-[#0f1535] text-cyan-300">
-              Select City
-            </option>
-            {cities.map((city) => (
-              <option key={city} value={city} className="bg-[#11193f] text-cyan-200">
+            <option value="">Select City</option>
+            {Object.keys(citiesData).map((city) => (
+              <option key={city} value={city}>
                 {city}
               </option>
             ))}
           </select>
-
-          {/* Custom dropdown arrow */}
-          <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-cyan-300">
-            ▼
-          </div>
         </div>
 
+        {/* Pincode Dropdown */}
         <div className="relative mb-5 rounded-lg p-[1px] bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 shadow-lg shadow-cyan-500/20">
           <select
             name="pincode"
             value={formData.pincode}
             onChange={handleChange}
             required
-            className="w-full appearance-none bg-[#0f1535]/90 backdrop-blur-md border-none 
-                       text-cyan-100 p-3 rounded-lg focus:outline-none focus:ring-2 
-                       focus:ring-cyan-400 cursor-pointer transition-all duration-200"
+            className="w-full appearance-none bg-[#0f1535]/90 text-cyan-100 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400"
           >
-            <option value="" className="bg-[#0f1535] text-cyan-300">
-             Pincode
-            </option>
-            <option value="400082" className="bg-[#11193f] text-cyan-200">
-              400082
-            </option>
-            <option value="421201" className="bg-[#11193f] text-cyan-200">
-              421201
-            </option>
-            <option value="421306" className="bg-[#11193f] text-cyan-200">
-              421306
-            </option>
-            <option value="412503" className="bg-[#11193f] text-cyan-200">
-              412503
-            </option>
+            <option value="">Select Pincode</option>
+            {formData.city &&
+              citiesData[formData.city]?.map((pin) => (
+                <option key={pin} value={pin}>
+                  {pin}
+                </option>
+              ))}
           </select>
-
-          {/* Custom dropdown arrow */}
-          <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-cyan-300">
-            ▼
-          </div>
         </div>
 
-        {/* Submit Button */}
         <motion.button
           type="submit"
-          whileHover={{
-            scale: 1.05,
-            boxShadow: "0 0 30px rgba(34,211,238,0.9)",
-          }}
+          whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="w-full py-3 font-semibold text-gray-900 rounded-lg bg-gradient-to-r 
-          from-cyan-400 via-blue-400 to-purple-400 hover:from-cyan-300 hover:to-purple-300 
-          transition-all duration-300 shadow-lg shadow-cyan-500/30"
+          className="w-full py-3 font-semibold text-gray-900 rounded-lg bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400"
         >
           Evaluate City
         </motion.button>
       </motion.form>
     </>
-  );
+  )
 };
 
 export default CityDataForm;

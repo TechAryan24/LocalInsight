@@ -11,7 +11,9 @@ def calculate_market_gap_scores(categories):
     distances = np.array([v["avg_nearest_neighbor_distance_m"] for v in categories.values()], dtype=float)
     saturations = np.array([v["saturation_index"] for v in categories.values()], dtype=float)
     shares = np.array([v["category_share"] for v in categories.values()], dtype=float)
-
+    
+    # Robust normaliztion technique
+    # To reduce the influence of outliers
     def pnorm(arr, val):
         if len(arr) < 2: return 1.0
         p = np.percentile(arr, [1, 99])

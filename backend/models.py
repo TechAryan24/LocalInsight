@@ -8,7 +8,7 @@ ranked_model = bundle["ranker"]
 feature_names = bundle["features"]
 categorical_columns = bundle["cat_cols"]
 
-with open("data/evaluation.pkl", "rb") as f:
+with open("data/xgboost.pkl", "rb") as f:
     location_model = pickle.load(f)
 
 df = pd.read_csv("data/business_data_final.csv")

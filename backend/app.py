@@ -89,36 +89,90 @@ def predict_city():
     row = city_data.iloc[0]
     city = row["City"]
 
-    # Prepare input features for the model
+    # ==============================
+    # Feature Engineering (EXISTING)
+    # ==============================
+    residential_density = row["Population"] / max(row["Total_Area"], 1)
+
     input_df = pd.DataFrame([{
-        "Competitor_Count": row.get("similar_shop", 0),
-        "Mall_Proximity": row.get("Mall_Proximity", 0),  # adjust if column name differs
-        "Footfall_Proxy": row.get("FootFalls_per_month", 0),
+        "Competitor_Count": row.get("Competitor_Count", 0),
+        "Mall_Proximity": row.get("Mall_Proximity", 0),
+        "Footfall_Proxy": row.get("Footfall_Proxy", 0),
         "Rent": row.get("Rent", 0),
-        "Avg_Income": row.get("avg_income", 0),
-        "Residential_density": row.get("Population", 0) / max(row.get("Total_Area", 1), 1),
-        "Youth_Pop_%": row.get("Youth_Ratio", 0),
+        "Avg_Income": row.get("Avg_Income", 0),
+        "Residential_density": residential_density,
+        "Youth_Pop_%": row.get("Youth_Pop_%", 0),
         "Business_Category": category
     }])
 
-    # Predict using the pipeline
-    prediction_encoded = location_model.predict(input_df)
-    
-    prediction_encoded = np.array(prediction_encoded)
-    prediction = label_encoder.inverse_transform(prediction_encoded)[0]
+    if "Business_Category" in categorical_columns:
+        input_df["Business_Category"] = input_df["Business_Category"].astype("category")
 
-    # Optionally, generate insights / fetch top shops
-    insights = generate_ai_insights(row.to_dict())
-    shops = fetch_top_shops(city, category)
+    # ==============================
+    # MODEL PREDICTION (EXISTING)
+    # ==============================
+    proba = location_model.predict_proba(input_df)[0]
+    predicted_index = np.argmax(proba)
+    prediction = label_encoder.inverse_transform([predicted_index])[0]
+    city_index_score = round(proba[predicted_index] * 100, 2)
 
-    return jsonify({
+    # ==============================
+    # Additional Analytics (EXISTING)
+    # ==============================
+    population = row.get("Population", 0)
+    total_area = row.get("Total_Area", 1)
+    density = population / max(total_area, 1)
+
+    # ==============================
+    # NEW LOGIC INTEGRATION
+    # ==============================
+    # Fetching the new structured data (markers and brand counts) 
+    # from the updated fetch_top_shops in services.py
+    market_analysis = fetch_top_shops(city, category)
+
+    response_payload = {
         "city": city,
         "pincode": pincode,
         "product_type": category,
         "predicted_category": prediction,
-        "insights": insights,
-        "shops": shops
-    })
+        "city_index_score": city_index_score,
+
+        # Full Probability Distribution
+        "confidence_distribution": {
+            "Low": round(proba[0] * 100, 2),
+            "Medium": round(proba[1] * 100, 2),
+            "High": round(proba[2] * 100, 2),
+        },
+
+        # Demographics
+        "population": population,
+        "density": round(density, 2),
+        "male_ratio": row.get("Male_Pop_%", 0),
+        "female_ratio": row.get("Female_Pop_%", 0),
+        "youth_ratio": row.get("Youth_Pop_%", 0),
+
+        # Economy
+        "avg_income": row.get("Avg_Income", 0),
+        "rent": row.get("Rent", 0),
+
+        # Market Factors
+        "footfall_monthly": row.get("Footfall_Proxy", 0),
+        "competitor_count": row.get("Competitor_Count", 0),
+        "mall_proximity": row.get("Mall_Proximity", 0),
+
+        # Insights
+        "insights": generate_ai_insights(row.to_dict()),
+
+        # NEW DATA STRUCTURE PASS-THROUGH
+        # market_analysis contains: {"markers": [...], "brand_counts": {...}}
+        "market_analysis": market_analysis,
+        
+        # Keeping "shops" key for backward compatibility if needed, 
+        # referencing the markers list specifically
+        "shops": market_analysis.get("markers", [])
+    }
+
+    return jsonify(make_json_safe(response_payload))
 
 # -------- Strategy & Business Plan Generator --------
 @app.route("/api/generate_strategy", methods=["POST"])

@@ -6,96 +6,96 @@ const MAPTILER_API_KEY = "PSKKY9Cyh2izeQTNhuac";
 
 const DashboardMap = ({ locations = [] }) => {
   const [geoData, setGeoData] = useState([]);
+  const [boundaryData, setBoundaryData] = useState(null);
   const [viewState, setViewState] = useState({
     longitude: 78.9629,
     latitude: 20.5937,
     zoom: 4,
   });
   const [hoverInfo, setHoverInfo] = useState(null);
+  const [mapStyle, setMapStyle] = useState('dark');
+  const [brandCounts, setBrandCounts] = useState({});
 
-  // Fetch coordinates for locations that don't have them
   useEffect(() => {
     const fetchCoordinates = async () => {
       const results = [];
-      const cachedCoords = {};
+      let cityBoundary = null;
+      let brandStats = {};
 
       for (const loc of locations) {
-        if (loc.latitude && loc.longitude) {
-          results.push({
-            ...loc,
-            latitude: parseFloat(loc.latitude),
-            longitude: parseFloat(loc.longitude),
-            area: loc.Area || 100,
+        // --- YOUR LOGIC: Brand and Shop Extraction ---
+        if (loc.market_analysis) {
+          const { markers, brand_counts } = loc.market_analysis;
+          brandStats = brand_counts;
+
+          markers.forEach(shop => {
+            results.push({
+              ...shop,
+              latitude: shop.lat,
+              longitude: shop.lng,
+              opportunity_score: loc.opportunity_score || 0.8,
+              isShopMarker: true 
+            });
           });
-          continue;
         }
 
-        const cityQuery = loc.City || loc.city;
-        if (!cityQuery) continue;
-
-        if (cachedCoords[cityQuery]) {
-          results.push({
-            ...loc,
-            latitude: cachedCoords[cityQuery].lat,
-            longitude: cachedCoords[cityQuery].lon,
-            area: loc.Area || 100,
-          });
-          continue;
-        }
+        // --- TEAMMATE LOGIC: Boundary and GeoJSON Fetch ---
+        const cityQuery = loc.City || loc.city || "";
+        const pinQuery = loc.pincode || "";
+        const finalQuery = pinQuery ? `${pinQuery}, ${cityQuery}` : cityQuery;
+        
+        if (!finalQuery) continue;
 
         try {
           const res = await fetch(
-            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cityQuery)}`
+            `https://nominatim.openstreetmap.org/search?format=json&polygon_geojson=1&q=${encodeURIComponent(finalQuery)}`
           );
           const data = await res.json();
 
           if (data && data.length > 0) {
-            const lat = parseFloat(data[0].lat);
-            const lon = parseFloat(data[0].lon);
-            cachedCoords[cityQuery] = { lat, lon };
+            const firstResult = data[0];
+            
+            // If no shop markers were found in market_analysis, use city center
+            if (!loc.market_analysis || results.length === 0) {
+              results.push({
+                ...loc,
+                latitude: parseFloat(firstResult.lat),
+                longitude: parseFloat(firstResult.lon),
+              });
+            }
 
-            results.push({
-              ...loc,
-              latitude: lat,
-              longitude: lon,
-              area: loc.Area || 100,
-            });
+            // Set boundary logic from teammate
+            if (firstResult.geojson && !cityBoundary) {
+              cityBoundary = {
+                type: "Feature",
+                geometry: firstResult.geojson,
+                properties: { name: finalQuery }
+              };
+            }
           }
         } catch (err) {
-          console.error(`Error fetching coordinates for ${cityQuery}:`, err);
+          console.error(`Fetch error:`, err);
         }
-
-        await new Promise(resolve => setTimeout(resolve, 1100)); // Rate limiting
+        // Rate limiting for Nominatim
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
 
       setGeoData(results);
+      setBoundaryData(cityBoundary);
+      setBrandCounts(brandStats);
 
       if (results.length > 0) {
-        const bounds = results.reduce((acc, curr) => {
-          return {
-            minLon: Math.min(acc.minLon, curr.longitude),
-            maxLon: Math.max(acc.maxLon, curr.longitude),
-            minLat: Math.min(acc.minLat, curr.latitude),
-            maxLat: Math.max(acc.maxLat, curr.latitude)
-          };
-        }, { minLon: 180, maxLon: -180, minLat: 90, maxLat: -90 });
-
         setViewState(prev => ({
           ...prev,
-          longitude: (bounds.minLon + bounds.maxLon) / 2,
-          latitude: (bounds.minLat + bounds.maxLat) / 2,
-          zoom: 5
+          longitude: results[0].longitude,
+          latitude: results[0].latitude,
+          zoom: 12 
         }));
       }
     };
 
-    if (locations.length > 0) {
-      fetchCoordinates();
-    }
+    if (locations.length > 0) fetchCoordinates();
   }, [locations]);
-
-  // --- Map Style ---
-  const [mapStyle, setMapStyle] = useState('streets');
 
   const getMapStyleUrl = () => {
     const styles = {
@@ -103,131 +103,154 @@ const DashboardMap = ({ locations = [] }) => {
       dark: `https://api.maptiler.com/maps/darkmatter/style.json?key=${MAPTILER_API_KEY}`,
       satellite: `https://api.maptiler.com/maps/satellite/style.json?key=${MAPTILER_API_KEY}`,
     };
-    return styles[mapStyle] || styles.streets;
+    return styles[mapStyle] || styles.dark;
   };
 
-  // --- Helper: Get Color based on Score ---
   const getMetricVisuals = (score) => {
     const s = parseFloat(score) || 0;
-    if (s >= 0.6) return { color: "#4ade80", rotate: 0, label: "High" };   // Green, Up
-    if (s >= 0.3) return { color: "#facc15", rotate: 45, label: "Medium" }; // Yellow, Tilted
-    return { color: "#f87171", rotate: 180, label: "Low" };                 // Red, Down
+    if (s >= 0.6) return { color: "#4ade80" };
+    if (s >= 0.3) return { color: "#facc15" };
+    return { color: "#f87171" };
   };
 
   return (
-    <div className="w-full h-full min-h-[550px] relative rounded-xl overflow-hidden shadow-2xl border border-white/10 group">
-      {/* Map Style Switcher */}
-      <div className="absolute top-4 right-4 bg-black/80 backdrop-blur-md p-1 rounded-lg flex gap-1 border border-white/20 shadow-lg z-10 transition-opacity opacity-0 group-hover:opacity-100 duration-300">
-        {[
-          { id: 'streets', label: 'Streets', icon: '🗺️' },
-          { id: 'satellite', label: 'Satellite', icon: '🛰️' },
-          { id: 'dark', label: 'Dark', icon: '🌑' },
-        ].map(style => (
+    <div className="w-full h-full min-h-[550px] relative rounded-3xl overflow-hidden shadow-2xl border border-white/10 bg-[#0a0a0a]">
+      
+      {/* 1. LEFT: Opportunity Legend */}
+      <div className="absolute top-6 left-6 z-30 bg-black/60 backdrop-blur-xl p-4 rounded-2xl border border-white/10 text-white shadow-2xl pointer-events-auto">
+        <h3 className="font-bold text-[10px] uppercase tracking-widest text-slate-400 mb-3 border-b border-white/5 pb-2">Analysis Score</h3>
+        <div className="space-y-2.5">
+          <div className="flex items-center gap-3 text-[11px]"><div className="w-2.5 h-2.5 bg-green-400 rounded-full"></div><span>High Potential</span></div>
+          <div className="flex items-center gap-3 text-[11px]"><div className="w-2.5 h-2.5 bg-yellow-400 rounded-full"></div><span>Mid Market</span></div>
+          <div className="flex items-center gap-3 text-[11px]"><div className="w-2.5 h-2.5 bg-red-400 rounded-full"></div><span>Low Potential</span></div>
+        </div>
+      </div>
+
+      {/* 2. RIGHT: Brand Clusters */}
+      {Object.keys(brandCounts).length > 0 && (
+        <div className="absolute top-6 right-6 z-30 bg-black/60 backdrop-blur-xl p-4 rounded-2xl border border-white/10 text-white shadow-2xl w-44 pointer-events-auto">
+          <h3 className="font-bold text-[10px] uppercase tracking-widest text-indigo-400 mb-3 border-b border-white/5 pb-2">Competitors</h3>
+          <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1 no-scrollbar">
+            {Object.entries(brandCounts).map(([brand, count]) => (
+              <div key={brand} className="flex justify-between items-center text-[11px]">
+                <span className="opacity-70 truncate pr-2">{brand}</span>
+                <span className="bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-md font-mono font-bold">{count}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 3. BOTTOM: Map Style Switcher (Resolved Conflict Position) */}
+      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-30 bg-black/80 backdrop-blur-2xl p-1.5 rounded-2xl border border-white/20 shadow-2xl flex gap-1 items-center">
+        {['dark', 'streets', 'satellite'].map(id => (
           <button
-            key={style.id}
-            onClick={() => setMapStyle(style.id)}
-            className={`
-                    px-3 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all
-                    ${mapStyle === style.id
-                ? 'bg-indigo-600 text-white shadow-lg'
-                : 'text-gray-300 hover:bg-white/10 hover:text-white'}
-                `}
+            key={id}
+            onClick={() => setMapStyle(id)}
+            className={`px-4 py-2 rounded-xl text-[11px] font-bold transition-all ${
+              mapStyle === id ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white'
+            }`}
           >
-            <span>{style.icon}</span>
-            {style.label}
+            {id.toUpperCase()}
           </button>
         ))}
       </div>
 
-      <Map
-        {...viewState}
-        onMove={(evt) => setViewState(evt.viewState)}
-        mapStyle={getMapStyleUrl()}
+      <Map 
+        {...viewState} 
+        onMove={(evt) => setViewState(evt.viewState)} 
+        mapStyle={getMapStyleUrl()} 
         style={{ width: "100%", height: "100%" }}
       >
+        {boundaryData && (
+          <Source type="geojson" data={boundaryData}>
+            <Layer id="city-fill" type="fill" paint={{ "fill-color": "#ef4444", "fill-opacity": 0.05 }} />
+            <Layer id="city-line" type="line" paint={{ "line-color": "#ef4444", "line-width": 2, "line-dasharray": [2, 1] }} />
+          </Source>
+        )}
+
         {geoData.map((loc, index) => {
           const visuals = getMetricVisuals(loc.opportunity_score);
           return (
-            <Marker
-              key={index}
-              longitude={loc.longitude}
-              latitude={loc.latitude}
-              anchor="bottom"
-              onClick={e => {
-                e.originalEvent.stopPropagation();
-                setHoverInfo(loc);
-              }}
-            >
-              <div className="relative flex items-center justify-center w-12 h-12 group -translate-y-1/2">
-                {/* 1. Radar Pulse Animation (The "Glowing" Ring) - Simplified for Dashboard */}
-                <div
-                  className="absolute bottom-0 w-8 h-8 rounded-full opacity-40 animate-ping"
-                  style={{ backgroundColor: visuals.color, transform: 'translateY(50%) scale(0.5)' }}
-                ></div>
-
-                {/* 2. The Pin Icon */}
-                <div className="relative z-10 transition-transform duration-200 group-hover:scale-125 group-hover:-translate-y-2">
-                  <svg
-                    width="36"
-                    height="36"
-                    viewBox="0 0 24 24"
-                    fill={visuals.color}
-                    stroke="white"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="drop-shadow-xl"
-                    style={{ filter: `drop-shadow(0 2px 4px rgba(0,0,0,0.3))` }}
-                  >
-                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-                  </svg>
-                </div>
+            <Marker key={index} longitude={loc.longitude} latitude={loc.latitude} anchor="bottom" onClick={e => { e.originalEvent.stopPropagation(); setHoverInfo(loc); }}>
+              <div className="relative cursor-pointer group">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill={loc.isShopMarker ? "#6366f1" : visuals.color} stroke="white" strokeWidth="2" className="drop-shadow-lg transition-transform group-hover:scale-110">
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
+                </svg>
               </div>
             </Marker>
           );
         })}
 
-        {/* Popup on Click */}
         {hoverInfo && (
-          <Popup
-            longitude={hoverInfo.longitude}
-            latitude={hoverInfo.latitude}
-            anchor="top"
-            onClose={() => setHoverInfo(null)}
-            closeOnClick={false}
-            className="text-slate-900 z-50"
-            offset={10}
-          >
-            <div className="p-2 min-w-[150px]">
-              <h3 className="font-bold text-lg capitalize">{hoverInfo.Area || hoverInfo.City || hoverInfo.city}</h3>
-              <div className="text-sm">
-                <p>Score: <strong>{hoverInfo.opportunity_score}</strong></p>
-                <p className="text-gray-500 text-xs">Footfalls: {hoverInfo.FootFalls_per_month?.toLocaleString()}</p>
-              </div>
-            </div>
-          </Popup>
+  <Popup
+    longitude={hoverInfo.longitude}
+    latitude={hoverInfo.latitude}
+    anchor="top"
+    onClose={() => setHoverInfo(null)}
+    closeButton={false}
+    offset={12}
+  >
+    <div className="p-0 min-w-[200px] max-w-[220px] bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-100">
+      {/* Optimized Image Logic */}
+      <div className="w-full h-24 bg-gray-100 relative">
+        {hoverInfo.thumbnail ? (
+          <img 
+            src={hoverInfo.thumbnail} 
+            alt={hoverInfo.title} 
+            loading="lazy" // Browsers prioritize loading visible images
+            className="w-full h-full object-cover transition-opacity duration-300 opacity-0"
+            onLoad={(e) => e.target.classList.remove('opacity-0')} // Only show once loaded
+            onError={(e) => {
+              e.target.src = "https://via.placeholder.com/400x300?text=No+Preview";
+              e.target.classList.remove('opacity-0');
+            }}
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-400">
+            No Image Available
+          </div>
         )}
-      </Map>
-
-      {/* Legend */}
-      <div className="absolute top-4 left-4 bg-black/80 backdrop-blur-md p-4 rounded-lg border border-white/10 text-white shadow-xl">
-        <h3 className="font-bold text-sm mb-2 border-b border-white/20 pb-1">Opportunity Score</h3>
-        <div className="space-y-2 text-xs">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-            <span>High (&gt; 0.6)</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
-            <span>Medium (0.3 - 0.6)</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-red-400 rounded-full"></div>
-            <span>Low (&lt; 0.3)</span>
-          </div>
-        </div>
       </div>
-    </div >
+      
+      <div className="p-3">
+        <h3 className="font-bold text-gray-900 text-sm leading-tight mb-1">
+          {hoverInfo.title || hoverInfo.brand || hoverInfo.City}
+        </h3>
+        
+        {hoverInfo.brand && (
+          <span className="text-[9px] font-black uppercase text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded-md mb-2 inline-block">
+            Competitor
+          </span>
+        )}
+
+        <div className="flex items-center gap-2 mt-1">
+          <span className="text-[10px] font-bold text-gray-600">
+            {hoverInfo.rating ? `${hoverInfo.rating} ★` : 'N/A'}
+          </span>
+          {hoverInfo.reviews_count && (
+            <span className="text-[9px] text-gray-400">({hoverInfo.reviews_count})</span>
+          )}
+        </div>
+
+        <p className="text-[9px] text-gray-400 mt-2 line-clamp-2">{hoverInfo.address}</p>
+
+        {hoverInfo.link && (
+          <a
+            href={hoverInfo.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 block w-full text-center bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold py-2 rounded-lg transition-colors no-underline cursor-pointer"
+          >
+            View on Google Maps
+          </a>
+        )}
+      </div>
+    </div>
+  </Popup>
+)}
+      </Map>
+    </div>
   );
 };
 

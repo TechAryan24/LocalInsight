@@ -1,25 +1,28 @@
-import React, { useEffect } from "react";
-import DashboardMap from "../../components/DashboardMap.jsx";
-import LocationAnalysisCard from "../../components/LocationAnalysisCard.jsx";
-import CollaboratedInsights from "../../components/CollaboratedInsights.jsx";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
+import { Activity, Zap, Heart, Sparkles, ShieldAlert } from "lucide-react"; // Added new icons
 import { useAuth } from "../../context/auth.jsx";
-import { Trophy, TrendingUp, MapPin, ChevronRight, Activity, Globe } from "lucide-react";
 import { motion } from "framer-motion";
+
+import Sidebar from "../../components/Sidebar";
+import DashboardMap from "../../components/DashboardMap.jsx";
+import DemographicsCard from "../../components/DemographicsCard.jsx";
+import FootfallCard from "../../components/FootfallCard.jsx";
 
 function CityDashboard() {
   const location = useLocation();
-  const navigate = useNavigate();
   const { currentUser } = useAuth();
+  const [data, setData] = useState(null);
 
-  // Get initial locations from either location.state or localStorage
-  const storedLocations = JSON.parse(localStorage.getItem("cityLocations")) || [];
-  const locations = location.state?.locations || storedLocations;
-
-  // If new data comes from navigation (i.e., after prediction), update localStorage
   useEffect(() => {
-    if (location.state?.locations && location.state.locations.length > 0) {
-      localStorage.setItem("cityLocations", JSON.stringify(location.state.locations));
+    const navData = location.state?.predictionData;
+    const savedData = JSON.parse(localStorage.getItem("lastPrediction"));
+
+    if (navData) {
+      setData(navData);
+      localStorage.setItem("lastPrediction", JSON.stringify(navData));
+    } else if (savedData) {
+      setData(savedData);
     }
   }, [location.state]);
 
@@ -31,25 +34,21 @@ function CityDashboard() {
     .slice(0, 3);
 
   return (
-    <div className="flex flex-col lg:flex-row h-full overflow-hidden">
-      {/* Left Sidebar - Fixed on Desktop */}
-      <div className="w-full lg:w-[28%] xl:w-1/4 h-full lg:overflow-y-auto p-6 flex flex-col gap-6 border-b lg:border-b-0 lg:border-r border-white/5 no-scrollbar">
+    <div className="flex flex-col lg:flex-row min-h-screen bg-[#030303] text-white">
+      <Sidebar data={data} />
 
-        <h1 className="text-3xl font-semibold text-white">
-          Welcome {currentUser?.displayName || "User"}!
-        </h1>
-
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-3">
-              <div className="w-1 h-8 bg-indigo-500 rounded-full shadow-[0_0_10px_rgba(99,102,241,0.5)]"></div>
-              <h2 className="text-xl font-black text-white tracking-tight">Top Opportunities</h2>
-            </div>
-            <div className="flex items-center gap-1.5 px-2 py-1 bg-indigo-500/10 rounded-full border border-indigo-500/20">
-              <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-pulse shadow-[0_0_5px_rgba(129,140,248,0.8)]"></div>
-              <span className="text-[8px] font-black text-indigo-400 uppercase tracking-widest">Live Analysis</span>
-            </div>
+      <div className="flex-1 lg:min-h-screen overflow-y-auto p-6 no-scrollbar">
+        
+        {/* Map Section */}
+        <div className="w-full h-[500px] mb-6 rounded-3xl overflow-hidden border border-white/10 shadow-2xl relative">
+          <DashboardMap locations={[data]} />
+          <div className="absolute top-6 left-6 flex items-center gap-2 px-4 py-2 bg-indigo-500/10 rounded-full border border-indigo-500/20 backdrop-blur-xl">
+            <div className="w-2 h-2 bg-indigo-400 rounded-full animate-pulse"></div>
+            <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">
+              Live Geographic Analysis
+            </span>
           </div>
+        </div>
 
           <div className="space-y-4">
             {topLocations.map((loc, i) => {
@@ -107,21 +106,18 @@ function CityDashboard() {
                         {(parseFloat(loc.opportunity_score || loc.rank_score || 0) * 50).toFixed(0)}%
                       </div>
 
-                      {/* Radar Pulse Effect */}
-                      <div className={`absolute -inset-1.5 border-2 rounded-full opacity-30 animate-ping ${score >= 0.3 ? 'border-yellow-500' : 'border-red-500'}`}></div>
-                      <div className={`absolute -inset-0.5 border-1 rounded-full opacity-10 ${score >= 0.3 ? 'border-yellow-500' : 'border-red-500'}`}></div>
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
+          {/* Brand Clusters */}
+          <div className="p-6 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 backdrop-blur-md transition-hover hover:bg-indigo-500/10">
+            <Sparkles className="text-indigo-400 w-5 h-5 mb-4" />
+            <h4 className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2">Brand Clusters</h4>
+            <p className="text-sm text-slate-300">Presence of: <span className="text-white font-medium">Starbucks, Apple, Nike Anchors.</span></p>
+          </div>
 
-            {topLocations.length === 0 && (
-              <div className="text-center py-12 bg-[#0f172a]/50 rounded-2xl border border-white/5 border-dashed">
-                <Globe className="w-8 h-8 text-slate-700 mx-auto mb-3 opacity-20" />
-                <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">No Active Targets</p>
-              </div>
-            )}
+          {/* Avoidance Metrics */}
+          <div className="p-6 rounded-2xl border border-rose-500/20 bg-rose-500/5 backdrop-blur-md transition-hover hover:bg-rose-500/10">
+            <ShieldAlert className="text-rose-400 w-5 h-5 mb-4" />
+            <h4 className="text-[10px] font-black text-rose-400 uppercase tracking-widest mb-2">Avoidance Metrics</h4>
+            <p className="text-sm text-slate-300">Distance from: <span className="text-white font-medium">Wine shops, High-noise zones.</span></p>
           </div>
         </div>
 
@@ -135,31 +131,13 @@ function CityDashboard() {
           <DashboardMap locations={locations} />
         </div>
 
-        {/* Collaborated Insights Section */}
-        <CollaboratedInsights locations={locations} />
-
-        {/* Detailed Breakdown Header */}
-        <div className="flex items-center gap-3 mb-6 mt-12">
-          <div className="w-1 h-6 bg-indigo-500 rounded-full"></div>
-          <h2 className="text-xl font-bold text-white tracking-tight text-shadow-sm">Detailed Breakdown</h2>
+        <div className="mb-10">
+          <DemographicsCard data={data} />
         </div>
 
-        {/* Locations Grid - Horizontal Scroll for Single Row */}
-        {locations.length > 0 ? (
-          <div className="flex gap-6 pb-12 overflow-x-auto no-scrollbar snap-x snap-mandatory px-2">
-            {locations.map((loc, index) => (
-              <div
-                key={index}
-                onClick={() => navigate('/dashboard/details', { state: { location: loc } })}
-                className="flex-shrink-0 w-[350px] snap-start cursor-pointer hover:scale-[1.02] transition-transform duration-300"
-              >
-                <LocationAnalysisCard data={loc} />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="mt-6 text-gray-200">No location data available yet.</p>
-        )}
+        <div className="pb-12">
+          <FootfallCard data={data} />
+        </div>
       </div>
     </div>
   );

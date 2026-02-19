@@ -59,7 +59,12 @@ const CityDataForm = () => {
     } finally {
       setLoading(false);
     }
-  };
+  } catch (error) {
+    alert("Failed to fetch prediction. Please check backend.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <>

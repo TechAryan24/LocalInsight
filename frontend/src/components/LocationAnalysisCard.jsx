@@ -160,7 +160,7 @@ const Sparkles = ({ className }) => (
 // --- Circular Progress ---
 const CircularProgress = ({ score, size = "normal" }) => {
   const numericScore = typeof score === "number" ? score : parseFloat(score) || 0;
-  const percentage = Math.min(Math.max(numericScore * 100, 0), 100);
+  const percentage = Math.min(Math.max(numericScore * 50, 0), 100);
   const radius = size === "small" ? 35 : 52;
   const strokeWidth = size === "small" ? 8 : 10;
   const circumference = 2 * Math.PI * radius;
@@ -202,7 +202,7 @@ const CircularProgress = ({ score, size = "normal" }) => {
       </svg>
       <div className="absolute flex flex-col items-center">
         <span className={`font-black text-white ${fontSize} drop-shadow-md`}>
-          {numericScore.toFixed(2)}
+          {(numericScore * 50).toFixed(0)}%
         </span>
         <span className="text-[7px] font-black text-slate-500 uppercase tracking-widest -mt-1 opacity-80">Score</span>
       </div>
@@ -213,7 +213,7 @@ const CircularProgress = ({ score, size = "normal" }) => {
 // --- Main Card ---
 function LocationAnalysisCard({ data }) {
   if (!data) return null;
-  const isUserFormResult = data.opportunity_score !== undefined;
+  const isUserFormResult = data.opportunity_score !== undefined || data.rank_score !== undefined;
   const formatNumber = (num) =>
     typeof num !== "number" ? num : num.toLocaleString("en-IN");
 
@@ -250,7 +250,7 @@ const UserFormCardContent = ({ data, formatNumber }) => (
           </h2>
         </div>
         <div className="flex-shrink-0">
-          <CircularProgress score={data.opportunity_score} size="small" />
+          <CircularProgress score={data.opportunity_score || data.rank_score} size="small" />
         </div>
       </div>
       <p className="text-xs font-medium text-slate-500 capitalize flex items-center gap-1.5 mt-1">

@@ -102,16 +102,12 @@ const Navbar = () => {
 
             {currentUser && (
               <>
-<<<<<<< HEAD
-                <NavLink to="/dashboard" icon={LayoutDashboard} label="Dashboard" />
-=======
                 {localStorage.getItem("activeDashboard") === "prediction" && localStorage.getItem("predictionLocations") && (
                   <NavLink to="/prediction-dashboard" icon={LayoutDashboard} label="Prediction Dashboard" />
                 )}
                 {localStorage.getItem("activeDashboard") === "city" && localStorage.getItem("cityLocations") && (
                   <NavLink to="/city-dashboard" icon={LayoutDashboard} label="City Dashboard" />
                 )}
->>>>>>> 2932df9 (feat: implement separate prediction and city dashboards with dynamic navbar visibility)
                 <NavLink to="/strategy-dashboard" icon={ClipboardList} label="Strategic Roadmap" />
               </>
             )}
@@ -162,16 +158,12 @@ const Navbar = () => {
 
             {currentUser && (
               <>
-<<<<<<< HEAD
-                <NavLink to="/dashboard" label="Dashboard" />
-=======
                 {localStorage.getItem("activeDashboard") === "prediction" && localStorage.getItem("predictionLocations") && (
                   <NavLink to="/prediction-dashboard" label="Prediction Dashboard" />
                 )}
                 {localStorage.getItem("activeDashboard") === "city" && localStorage.getItem("cityLocations") && (
                   <NavLink to="/city-dashboard" label="City Dashboard" />
                 )}
->>>>>>> 2932df9 (feat: implement separate prediction and city dashboards with dynamic navbar visibility)
                 <NavLink to="/strategy-dashboard" label="Strategy Dashboard" />
               </>
             )}

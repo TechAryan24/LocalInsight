@@ -49,12 +49,8 @@ const CityDataForm = () => {
       const data = await response.json();
 
       if (response.ok) {
-<<<<<<< HEAD
-        navigate("/dashboard", { state: { locations: [data] } });
-=======
         localStorage.setItem("activeDashboard", "city");
         navigate("/city-dashboard", { state: { locations: [data] } });
->>>>>>> 2932df9 (feat: implement separate prediction and city dashboards with dynamic navbar visibility)
       } else {
         alert(`Prediction failed: ${data.error || "Unknown error"}`);
       }

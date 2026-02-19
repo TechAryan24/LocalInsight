@@ -6,11 +6,8 @@ import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import Navbar from "./components/Navbar";
 import Dashboard from "./pages/dashboard/Dashboard";
-<<<<<<< HEAD
-=======
 import PredictionDashboard from "./pages/dashboard/PredictionDashboard";
 import CityDashboard from "./pages/dashboard/CityDashboard";
->>>>>>> 2932df9 (feat: implement separate prediction and city dashboards with dynamic navbar visibility)
 import LocationDetails from "./pages/dashboard/LocationDetails";
 import StrategyDashboard from "./components/StrategyDashboard";
 import PrivateRoute from "./components/PrivateRoute";
@@ -55,8 +52,6 @@ function App() {
           }
         />
         <Route
-<<<<<<< HEAD
-=======
           path="/prediction-dashboard"
           element={
             <PrivateRoute>
@@ -73,7 +68,6 @@ function App() {
           }
         />
         <Route
->>>>>>> 2932df9 (feat: implement separate prediction and city dashboards with dynamic navbar visibility)
           path="/dashboard/details"
           element={
             <PrivateRoute>

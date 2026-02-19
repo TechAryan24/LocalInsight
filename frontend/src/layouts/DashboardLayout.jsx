@@ -12,12 +12,7 @@ const DashboardLayout = () => {
       <Navbar />
 
       {/* Main Layout Container */}
-<<<<<<< HEAD
-      <main className="flex-1 flex flex-col p-6 pt-24 gap-6 overflow-y-auto no-scrollbar">
-=======
-      {/* Main Layout Container */}
       <main className="flex-1 flex flex-col pt-24 overflow-hidden relative">
->>>>>>> 2932df9 (feat: implement separate prediction and city dashboards with dynamic navbar visibility)
         {/* Welcome Message moved to top of main content if needed, or rely on Dashboard page's header */}
         <Outlet />
       </main>

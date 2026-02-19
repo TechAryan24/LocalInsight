@@ -10,6 +10,10 @@ function Dashboard() {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
 
+  const handleGoToMap = () => {
+    navigate("/map");
+  };
+
   // Get initial locations from either location.state or localStorage
   const storedLocations = JSON.parse(localStorage.getItem("dashboardLocations")) || [];
   const locations = location.state?.locations || storedLocations;

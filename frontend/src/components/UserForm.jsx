@@ -27,12 +27,8 @@ const UserForm = () => {
       const data = await response.json();
       if (response.ok) {
         console.log(data);
-<<<<<<< HEAD
-        navigate("/dashboard", { state: { locations: data } });
-=======
         localStorage.setItem("activeDashboard", "prediction");
         navigate("/prediction-dashboard", { state: { locations: data } });
->>>>>>> 2932df9 (feat: implement separate prediction and city dashboards with dynamic navbar visibility)
       } else {
         alert(data.message || "No suitable location found");
       }
@@ -159,11 +155,7 @@ const UserForm = () => {
         </div>
 
         {/* Prefered Target_Customer  */}
-<<<<<<< HEAD
-          <div className="relative mb-5 rounded-lg p-[1px] bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 shadow-lg shadow-cyan-500/20">
-=======
         <div className="relative mb-5 rounded-lg p-[1px] bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 shadow-lg shadow-cyan-500/20">
->>>>>>> 2932df9 (feat: implement separate prediction and city dashboards with dynamic navbar visibility)
           <select
             name="target_customer"
             value={formData.target_customer}

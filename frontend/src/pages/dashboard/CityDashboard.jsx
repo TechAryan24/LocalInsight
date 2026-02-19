@@ -27,7 +27,7 @@ function CityDashboard() {
 
   // Sort for Top 3
   const topLocations = [...locations]
-    .sort((a, b) => (parseFloat(b.opportunity_score) || 0) - (parseFloat(a.opportunity_score) || 0))
+    .sort((a, b) => (parseFloat(b.opportunity_score || b.rank_score) || 0) - (parseFloat(a.opportunity_score || a.rank_score) || 0))
     .slice(0, 3);
 
   return (
@@ -104,7 +104,7 @@ function CityDashboard() {
                   <div className="absolute top-6 right-6 flex items-center justify-center">
                     <div className={`w-14 h-14 rounded-full border-2 ${scoreColor} flex items-center justify-center relative z-10 bg-[#1a1a2e]`}>
                       <div className={`text-xs font-black font-mono ${scoreColor.split(' ')[0]}`}>
-                        {(parseFloat(loc.opportunity_score || loc.rank_score || 0)).toFixed(2)}
+                        {(parseFloat(loc.opportunity_score || loc.rank_score || 0) * 50).toFixed(0)}%
                       </div>
 
                       {/* Radar Pulse Effect */}
@@ -131,7 +131,7 @@ function CityDashboard() {
       {/* Right Content - Scrollable on Desktop */}
       <div className="flex-1 h-full overflow-y-auto p-6 no-scrollbar">
         {/* Map Section */}
-        <div className="w-full h-[500px] mb-8">
+        <div className="w-full h-[550px] mb-16">
           <DashboardMap locations={locations} />
         </div>
 
